@@ -392,7 +392,21 @@ Celestial.exportSVG = function(fname) {
       }
       // Special case for Moon crescent
       if (jlun.features.length > 0) {
-        if (cfg.planets.symbolType === "letter") {
+        if (cfg.planets.symbolType === "disk") {
+          groups.planets.selectAll(".moon")
+              .data(jlun.features)
+              .enter().append("path")
+              .attr("transform", function (d) {
+                return point(d.geometry.coordinates);
+              })
+              .attr("d", function (d) {
+                var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+                return planetSymbol(d.properties, r);
+              })
+              .attr("class", function (d) {
+                return "planets " + d.id;
+              });
+        } else if (cfg.planets.symbolType === "letter") {
           groups.planets.selectAll(".moon")
            .data(jlun.features)
            .enter().append("text")
@@ -427,24 +441,49 @@ Celestial.exportSVG = function(fname) {
 
       //Planet names
       if (cfg.planets.names) {
-        groups.planetNames.selectAll(".planetnames")
-         .data(jp.features)
+        console.log(cfg.planets.names);
+        var planets = groups.planetNames.selectAll(".planetnames");
+        planets.data(jp.features)
          .enter().append("text")
-         .attr("transform", function(d) { return point(d.geometry.coordinates); })
+         .attr("transform", function(d) {
+           var r_correct = 0;
+           if (cfg.planets.symbols[d.id].size) {
+             r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+           }
+           var points = projection(d.geometry.coordinates);
+           points[1] = points[1] + (r_correct / 2);
+           return "translate(" + points + ")";
+         })
          .text( function(d) { return d.properties.name; })
          .attr({dy: ".85em", dx: "-.35em"})
-         .attr("class", function(d) { return "planetNames " + d.id; });
+         .attr("class", function(d) { return "planetNames" + d.id; });
+
+        jp.features.forEach(function(d) {
+          styles['planetNames' + d.id] = svgTextStyle(cfg.planets.nameStyle, cfg.planets.symbols[d.id].text);
+        });
+
         if (jlun.features.length > 0) {
-          groups.planetNames.selectAll(".moonname")
-           .data(jlun.features)
+          var moons = groups.planetNames.selectAll(".moonname");
+          moons.data(jlun.features)
            .enter().append("text")
-           .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           .attr("transform", function(d) {
+             var r_correct = 0;
+             if (cfg.planets.symbols[d.id].size) {
+               r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+             }
+             var points = projection(d.geometry.coordinates);
+             points[1] = points[1] + (r_correct / 2);
+             return "translate(" + points + ")";
+           })
            .text( function(d) { return d.properties.name; })
            .attr({dy: ".85em", dx: "-.35em"})
-           .attr("class", function(d) { return "planetNames " + d.id; });
+           .attr("class", function(d) { return "planetNames" + d.id; });
+
+          jlun.features.forEach(function(d) {
+            styles['planetNames' + d.id] = svgTextStyle(cfg.planets.nameStyle, cfg.planets.symbols[d.id].text);
+          });
         }
       }
-      styles.planetNames = svgTextStyle(cfg.planets.nameStyle);
 
       callback(null);
     });
@@ -531,10 +570,13 @@ Celestial.exportSVG = function(fname) {
     return res;
   }
 
-  function svgTextStyle(s) {
+  function svgTextStyle(s, f) {
     var res = {};
     res.stroke = "none";
     res.fill = s.fill || "none";
+    if (f) {
+      res.fill = f;
+    }
     res["fill-opacity"] = s.opacity !== null ? s.opacity : 1;
     //res.textBaseline = s.baseline || "bottom";
     res["text-anchor"] = svgAlign(s.align);
