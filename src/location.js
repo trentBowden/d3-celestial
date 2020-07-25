@@ -215,28 +215,37 @@ function geo(cfg) {
         url = protocol + "://api.timezonedb.com/v2.1/get-time-zone?key=" + config.timezoneid + "&format=json&by=position" +
               "&lat=" + p[0] + "&lng=" + p[1] + "&time=" + timestamp;
        // oldZone = timeZone;
+    //TODO: here wes shold fix datatime
+    timeZone = Math.round(p[1] / 15) * 60;
+    geoInfo = {
+      gmtOffset: timeZone * 60,
+      message: "Sea locatation inferred",
+      timestamp: timestamp
+    };
+    $("datetime").value = dateFormat(date, timeZone);
+    go();
 
-    d3.json(url, function(error, json) {
-      if (error) return console.warn(error);
-      if (json.status === "FAILED") {
-        // Location at sea inferred from longitude
-        timeZone = Math.round(p[1] / 15) * 60;
-        geoInfo = {
-          gmtOffset: timeZone * 60,
-          message: "Sea locatation inferred",
-          timestamp: timestamp
-        };
-      } else {
-        timeZone = json.gmtOffset / 60;
-        geoInfo = json;
-      }
-      //if (settime) {
-        //date.setTime(timestamp * 1000); // - (timeZone - oldZone) * 60000);
-        //console.log(date.toUTCString());
-      //}
-      $("datetime").value = dateFormat(date, timeZone);
-      go();
-    });
+    // d3.json(url, function(error, json) {
+    //   if (error) return console.warn(error);
+    //   if (json.status === "FAILED") {
+    //     // Location at sea inferred from longitude
+    //     timeZone = Math.round(p[1] / 15) * 60;
+    //     geoInfo = {
+    //       gmtOffset: timeZone * 60,
+    //       message: "Sea locatation inferred",
+    //       timestamp: timestamp
+    //     };
+    //   } else {
+    //     timeZone = json.gmtOffset / 60;
+    //     geoInfo = json;
+    //   }
+    //   //if (settime) {
+    //     //date.setTime(timestamp * 1000); // - (timeZone - oldZone) * 60000);
+    //     //console.log(date.toUTCString());
+    //   //}
+    //   $("datetime").value = dateFormat(date, timeZone);
+    //   go();
+    // });
   }
 
   Celestial.dateFormat = dateFormat;
