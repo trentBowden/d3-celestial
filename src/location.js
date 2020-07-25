@@ -10,10 +10,7 @@ Celestial.locationAndDateIntoCenter = function(geopos, date, transform) {
 
   if (!isNaN(lon) && !isNaN(lat)) {
     var dtc = new Date(date.valueOf() - (timeZone - localZone) * 60000);
-    console.log('dtc', dtc);
     var inverse = horizontal.inverse(dtc, [90, 0], geopos);
-    console.log('inverse', inverse);
-    console.log('inverse B: ', dtc, geopos);
     return Celestial.getPoint(inverse, transform);
   }
 };
@@ -200,11 +197,7 @@ function geo(cfg) {
       $("datetime").value = dateFormat(date, timeZone);
 
       var dtc = new Date(date.valueOf() - (timeZone - localZone) * 60000);
-      console.log(dtc);
-      console.log('inverse', horizontal.inverse(dtc, [90, 0], geopos));
-      console.log('inverse B: ', dtc, geopos);
       zenith = Celestial.getPoint(horizontal.inverse(dtc, [90, 0], geopos), config.transform);
-      console.log(zenith);
       zenith[2] = 0;
       if (config.follow === "zenith") {
         Celestial.rotate({center:zenith});
