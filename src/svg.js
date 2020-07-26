@@ -28,7 +28,7 @@ Celestial.exportSVG = function(fname) {
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
 
-  var groupNames = ['background', 'milkyWay', 'milkyWayBg', 'gridLines', 'constBoundaries',
+  var groupNames = ['milkyWay', 'milkyWayBg', 'gridLines', 'constBoundaries',
                     'planesequatorial', 'planesecliptic', 'planesgalactic', 'planessupergalactic',
                     'constLines', 'mapBorder','stars', 'dsos', 'planets', 'gridvaluesLon', 'gridvaluesLat',
                     'constNames', 'starDesignations', 'starNames', 'dsoNames', 'planetNames', 'horizon', 'daylight'],
