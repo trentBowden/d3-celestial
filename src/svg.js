@@ -778,7 +778,9 @@ Celestial.exportSVG = function(fname) {
               .attr("type", "text\/css")
               .text(createStyles());
 
-          resolve(svgExp.node().outerHTML);
+          var svg = svgExp.node().outerHTML;
+          svg = svg.replace('<defs></defs>', defs.node().outerHTML);
+          resolve(svg);
         });
       } catch (e) {
         reject('Error when generate SVG');
