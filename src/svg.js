@@ -760,24 +760,29 @@ Celestial.exportSVG = function(fname) {
 
   if (!fname) {
     return new Promise(function(resolve, reject) {
-      q.await(function(error) {
-        if (error) throw error;
-        var svgExp = d3.select("#d3-celestial-svg svg")
-            .attr("title", "D3-Celestial")
-            .attr("version", 1.1)
-            .attr("encoding", "UTF-8")
-            .attr("xmlns", "http://www.w3.org/2000/svg")
-            .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
-            .attr("xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd")
-            .attr("xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape")
-            .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
+      try {
+        q.await(function (error) {
+          if (error) throw error;
 
-        defs.append("style")
-            .attr("type", "text\/css")
-            .text(createStyles());
+          var svgExp = d3.select("#d3-celestial-svg svg")
+              .attr("title", "D3-Celestial")
+              .attr("version", 1.1)
+              .attr("encoding", "UTF-8")
+              .attr("xmlns", "http://www.w3.org/2000/svg")
+              .attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
+              .attr("xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd")
+              .attr("xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape")
+              .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
 
-        resolve(svgExp.node().outerHTML);
-      });
+          defs.append("style")
+              .attr("type", "text\/css")
+              .text(createStyles());
+
+          resolve(svgExp.node().outerHTML);
+        });
+      } catch (e) {
+        reject('Error when generate SVG');
+      }
     });
   }
 
