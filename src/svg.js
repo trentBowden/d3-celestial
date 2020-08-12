@@ -28,7 +28,7 @@ Celestial.exportSVG = function(fname) {
   svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
 
-  var groupNames = ['milkyWay', 'milkyWayBg', 'gridLines', 'constBoundaries',
+  var groupNames = ['background', 'milkyWay', 'milkyWayBg', 'gridLines', 'constBoundaries',
                     'planesequatorial', 'planesecliptic', 'planesgalactic', 'planessupergalactic',
                     'constLines', 'mapBorder','stars', 'dsos', 'planets', 'gridvaluesLon', 'gridvaluesLat',
                     'constNames', 'starDesignations', 'starNames', 'dsoNames', 'planetNames', 'horizon', 'daylight'],
@@ -211,6 +211,8 @@ Celestial.exportSVG = function(fname) {
         if (error) callback(error);
 
         var conn = getData(json, cfg.transform);
+        var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
+
         groups.constNames.selectAll(".constnames")
          .data(conn.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1;
@@ -218,7 +220,14 @@ Celestial.exportSVG = function(fname) {
          .enter().append("text")
          .attr("class", function(d) { return "constNames" + d.properties.rank; })
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d) { return constName(d); } );
+         .text( function(d) {
+           var pt = projection(d.geometry.coordinates);
+           var diag = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
+
+           if (diag > 0) {
+             return constName(d);
+           }
+         } );
 
         styles.constNames1 = {"fill": cfg.constellations.nameStyle.fill[0],
                               "fill-opacity": cfg.constellations.nameStyle.opacity[0],
@@ -441,7 +450,8 @@ Celestial.exportSVG = function(fname) {
 
       //Planet names
       if (cfg.planets.names) {
-        console.log(cfg.planets.names);
+        var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
+
         var planets = groups.planetNames.selectAll(".planetnames");
         planets.data(jp.features)
          .enter().append("text")
@@ -454,7 +464,14 @@ Celestial.exportSVG = function(fname) {
            points[1] = points[1] + (r_correct / 2);
            return "translate(" + points + ")";
          })
-         .text( function(d) { return d.properties.name; })
+         .text( function(d) {
+           var pt = projection(d.geometry.coordinates);
+           var diag = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
+
+           if (diag > 0) {
+             return d.properties.name;
+           }
+         })
          .attr({dy: ".85em", dx: "-.35em"})
          .attr("class", function(d) { return "planetNames" + d.id; });
 
@@ -547,8 +564,7 @@ Celestial.exportSVG = function(fname) {
   }
 
   function point(coords) {
-    return "translate(100, 100)";
-    // return "translate(" + projection(coords) + ")";
+    return "translate(" + projection(coords) + ")";
   }
 
   function filename(what, sub, ext) {

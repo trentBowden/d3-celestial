@@ -529,10 +529,6 @@ Celestial.display = function(config) {
       var canvas = document.getElementsByTagName('canvas');
       var cr = canvas[0].offsetWidth / 2;
 
-      context.beginPath();
-      context.arc(cr, cr, cr * cfg.constellations.nameStyle.threshold, 0, 2 * Math.PI);
-      context.stroke();
-
       container.selectAll(".constname").each( function(d) {
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
@@ -626,7 +622,14 @@ Celestial.display = function(config) {
             setTextStyle(cfg.planets.nameStyle);
             //context.direction = "ltr" || "rtl" ar il ir
             context.fillStyle = sym.text;
-            context.fillText(name, pt[0] - r/2, pt[1] + r/2);
+            var canvas = document.getElementsByTagName('canvas');
+            var cr = canvas[0].offsetWidth / 2;
+
+            var diag = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0] - r/2, 2) + Math.pow(cr-pt[1] + r/2, 2));
+
+            if (diag > 0) {
+              context.fillText(name, pt[0] - r/2, pt[1] + r/2);
+            }
           }
         }
       });
