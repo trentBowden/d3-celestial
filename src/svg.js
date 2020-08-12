@@ -547,7 +547,8 @@ Celestial.exportSVG = function(fname) {
   }
 
   function point(coords) {
-    return "translate(" + projection(coords) + ")";
+    return "translate(100, 100)";
+    // return "translate(" + projection(coords) + ")";
   }
 
   function filename(what, sub, ext) {

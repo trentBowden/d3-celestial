@@ -527,11 +527,23 @@ Celestial.display = function(config) {
 
     if (cfg.constellations.names) {
       //setTextStyle(cfg.constellations.nameStyle);
+      var canvas = document.getElementsByTagName('canvas');
+      var cr = canvas[0].offsetWidth / 2;
+
+      context.beginPath();
+      context.arc(cr, cr, cr * cfg.constellations.nameStyle.threshold, 0, 2 * Math.PI);
+      context.stroke();
+
       container.selectAll(".constname").each( function(d) {
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
           var pt = mapProjection(d.geometry.coordinates);
-          context.fillText(constName(d), pt[0], pt[1]);
+
+          var diag = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
+
+          if (diag > 0) {
+            context.fillText(constName(d), pt[0], pt[1]);
+          }
         }
       });
     }
@@ -5100,7 +5112,8 @@ Celestial.exportSVG = function(fname) {
   }
 
   function point(coords) {
-    return "translate(" + projection(coords) + ")";
+    return "translate(100, 100)";
+    // return "translate(" + projection(coords) + ")";
   }
 
   function filename(what, sub, ext) {
