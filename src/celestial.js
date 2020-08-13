@@ -533,9 +533,12 @@ Celestial.display = function(config) {
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
           var pt = mapProjection(d.geometry.coordinates);
-
           var diag = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
 
+          // var pe = context.measureText(constName(d)).width;
+          // var diagEnd = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0]+pe, 2) + Math.pow(cr-pt[1], 2));
+
+          // if (diag > 0 && diagEnd > 0) {
           if (diag > 0) {
             context.fillText(constName(d), pt[0], pt[1]);
           }
@@ -623,10 +626,18 @@ Celestial.display = function(config) {
             //context.direction = "ltr" || "rtl" ar il ir
             context.fillStyle = sym.text;
             var canvas = document.getElementsByTagName('canvas');
-            var cr = canvas[0].offsetWidth / 2;
 
+            var cr = canvas[0].offsetWidth / 2;
             var diag = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0] - r/2, 2) + Math.pow(cr-pt[1] + r/2, 2));
 
+            // context.beginPath();
+            // context.arc(cr, cr, cr, 0, 2 * Math.PI);
+            // context.stroke();
+
+            var pe = context.measureText(name).width;
+            // var diagEnd = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0]+pe, 2) + Math.pow(cr-pt[1], 2));
+
+            // if (diag > 0 && diagEnd > 0) {
             if (diag > 0) {
               context.fillText(name, pt[0] - r/2, pt[1] + r/2);
             }
