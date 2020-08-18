@@ -5,8 +5,14 @@ Celestial.exportSVG = function(fname) {
   var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
-      cfg = settings.set(),
-      path = cfg.datapath,
+      cfg = settings.set();
+
+  if (cfg.svgSize) {
+    m.width = cfg.svgSize;
+    m.height = cfg.svgSize;
+  }
+
+  var path = cfg.datapath,
       proj = projections[cfg.projection],
       rotation = getAngles(cfg.center),
       center = [-rotation[0], -rotation[1]],
