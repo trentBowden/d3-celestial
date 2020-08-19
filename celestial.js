@@ -4727,7 +4727,7 @@ Celestial.exportSVG = function(fname) {
         styles.constBoundaries = svgStyle(cfg.constellations.boundStyle);
         styles.constBoundariesSel = {"fill": "none",
             "stroke": cfg.constellations.boundStyle.stroke,
-            "stroke-width": cfg.constellations.boundStyle.width * 2 + 'px',
+            "stroke-width": cfg.constellations.boundStyle.width * 1.5,
             "stroke-opacity": 1,
             "stroke-dasharray": "none"};
 
@@ -4752,15 +4752,15 @@ Celestial.exportSVG = function(fname) {
         var dasharray = has(cfg.constellations.lineStyle, "dash") ? cfg.constellations.lineStyle.dash.join(" ") : "none";
 
         styles.constLines1 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[0],
-                              "stroke-width": cfg.constellations.lineStyle.width[0] * 2 + 'px',
+                              "stroke-width": cfg.constellations.lineStyle.width[0],
                               "stroke-opacity": cfg.constellations.lineStyle.opacity[0],
                               "stroke-dasharray": dasharray};
         styles.constLines2 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[1],
-                              "stroke-width": cfg.constellations.lineStyle.width[1] * 2 + 'px',
+                              "stroke-width": cfg.constellations.lineStyle.width[1],
                               "stroke-opacity": cfg.constellations.lineStyle.opacity[1],
                               "stroke-dasharray": dasharray};
         styles.constLines3 = {"fill": "none", "stroke": cfg.constellations.lineStyle.stroke[2],
-                              "stroke-width": cfg.constellations.lineStyle.width[2] * 2 + 'px',
+                              "stroke-width": cfg.constellations.lineStyle.width[2],
                               "stroke-opacity": cfg.constellations.lineStyle.opacity[2],
                               "stroke-dasharray": dasharray};
         callback(null);
