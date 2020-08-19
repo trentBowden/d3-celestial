@@ -4585,12 +4585,6 @@ Celestial.exportSVG = function(fname) {
       svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
       cfg = settings.set();
-
-  // if (cfg.svgSize) {
-    m.width = 618;
-    m.height = 618;
-  // }
-
   var path = cfg.datapath,
       proj = projections[cfg.projection],
       rotation = getAngles(cfg.center),
