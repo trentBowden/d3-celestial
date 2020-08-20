@@ -4844,7 +4844,7 @@ Celestial.exportSVG = function(fname) {
             .attr("cx", function(d) { return projection(d.geometry.coordinates)[0]; })
             .attr("cy", function(d) { return projection(d.geometry.coordinates)[1]; })
             .attr("r", function(d) { return starMagRadial(d.properties.mag); })
-            .style("fill", "#fff");
+            .style("fill", cfg.stars.style.fill );
             // .attr("d", map.pointRadius( function(d) {
             //   return d.properties ? starSize(d.properties.mag) : 1;
             // }));
