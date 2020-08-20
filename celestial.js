@@ -4837,11 +4837,18 @@ Celestial.exportSVG = function(fname) {
           .data(cons.features.filter( function(d) {
             return d.properties.mag <= cfg.stars.limit;
           }))
-          .enter().append("path")
-          .attr("class", function(d) { return "stars" + starColor(d.properties.bv); })
-          .attr("d", map.pointRadius( function(d) {
-            return d.properties ? starSize(d.properties.mag) : 1;
-          }));
+          .enter()
+            // .append("path")
+            .append("circle")
+            .attr("class", function(d) { return "stars" + starColor(d.properties.bv) + " " + starMagClass(d.properties.mag); })
+            .attr("cx", function(d) { return projection(d.geometry.coordinates)[0]; })
+            .attr("cy", function(d) { return projection(d.geometry.coordinates)[1]; })
+            .attr("r", function(d) { return starMagRadial(d.properties.mag); })
+            .style("fill", "#fff");
+            // .attr("d", map.pointRadius( function(d) {
+            //   return d.properties ? starSize(d.properties.mag) : 1;
+            // }));
+
 
         styles.stars = svgStyle(cfg.stars.style);
         var range = bvcolor.domain();
@@ -5293,6 +5300,35 @@ Celestial.exportSVG = function(fname) {
   function starColor(bv) {
     if (!cfg.stars.colors || isNaN(bv)) return "";
     return Math.round(bv*10).toString();
+  }
+
+  function starMagClass(mag) {
+    return "StarMag-" + Math.round(mag);
+  }
+
+  function starMagRadial(mag) {
+    var smrRound = Math.round(mag);
+
+    switch (smrRound) {
+      case -1:
+        return 5;
+      case 0:
+        return 4;
+      case 1:
+        return 3.5;
+      case 2:
+        return 3;
+      case 3:
+        return 2;
+      case 4:
+        return 1.5;
+      case 5:
+        return 1;
+      case 6:
+        return 0.5;
+      case 7:
+        return 10;
+    }
   }
 
   function constName(d) {
