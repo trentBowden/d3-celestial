@@ -390,13 +390,21 @@ Celestial.exportSVG = function(fname) {
       if (cfg.planets.symbolType === "disk") {
         groups.planets.selectAll(".planets")
          .data(jp.features)
-         .enter().append("path")
-         .attr("transform", function(d) { return point(d.geometry.coordinates); })
-         .attr("d", function(d) {
-           var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
-           return planetSymbol(d.properties, r);
-         })
-         .attr("class", function(d) { return "planets " + d.id; });
+         .enter()
+            // .append("path")
+            .append("circle")
+           // .attr("transform", function(d) { return point(d.geometry.coordinates); })
+           // .attr("d", function(d) {
+           //   var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+           //   return planetSymbol(d.properties, r);
+           // })
+           .attr("class", function(d) { return "planets " + d.id; })
+           .attr("cx", function(d) { return projection(d.geometry.coordinates)[0]; })
+           .attr("cy", function(d) { return projection(d.geometry.coordinates)[1]; })
+           .attr("r", function(d) {
+             var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+             return r;
+           });
       } else {
         groups.planets.selectAll(".planets")
          .data(jp.features)
