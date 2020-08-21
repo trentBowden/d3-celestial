@@ -724,7 +724,7 @@ Celestial.exportSVG = function(fname) {
   }
 
   function starMagClass(mag) {
-    return "StarMag-" + Math.round(mag);
+    return "StarMag-" + Math.round(mag * 2);
   }
 
   function starMagRadial(mag) {
