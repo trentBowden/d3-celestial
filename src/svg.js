@@ -533,8 +533,8 @@ Celestial.exportSVG = function(fname) {
              span.innerHTML = d.properties.name;
 
            sizesObj.name = d.properties.name;
-           sizesObj.x = pt[0] + r_correct;
-           sizesObj.y = pt[1] + r_correct/2;
+           sizesObj.x = pt[0] + r_correct/2 + 2;
+           sizesObj.y = pt[1] - r_correct/2;
            sizesObj.width = span.offsetWidth;
            sizesObj.height = span.offsetHeight;
             span.remove();
