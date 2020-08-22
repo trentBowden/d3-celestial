@@ -5258,6 +5258,16 @@ Celestial.exportSVG = function(fname) {
         var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
 
         var planets = groups.planetNames.selectAll(".planetnames");
+
+        var planetNameSize = [];
+          var sizesObj = {
+              name: '',
+              x: undefined,
+              y: undefined,
+              width: undefined,
+              height: undefined,
+          };
+
         planets.data(jp.features)
          .enter().append("text")
          .attr("transform", function(d) {
@@ -5265,9 +5275,76 @@ Celestial.exportSVG = function(fname) {
            if (cfg.planets.symbols[d.id].size) {
              r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
            }
-           var points = projection(d.geometry.coordinates);
-           points[1] = points[1] + (r_correct / 2);
-           return "translate(" + points + ")";
+           var pt = projection(d.geometry.coordinates);
+             pt[1] = pt[1] + (r_correct / 2);
+
+             var span = document.createElement('span');
+             document.body.append(span);
+             span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
+             span.innerHTML = d.properties.name;
+
+           sizesObj.name = name;
+           sizesObj.x = pt[0] - r_correct/2;
+           sizesObj.y = pt[1] + r_correct/2;
+           sizesObj.width = span.offsetWidth;
+           sizesObj.height = span.offsetHeight;
+
+           var isPlanetCollide = false;
+
+             // Check standard label location
+             planetNameSize.forEach(function(bookedSize){
+                 var tempCheckStandardLabelLocation = helpers.checkTextCollistion(bookedSize, sizesObj);
+                 if (!isPlanetCollide && tempCheckStandardLabelLocation) {
+                     isPlanetCollide = true;
+                 }
+             });
+
+             if (isPlanetCollide) {
+                 isPlanetCollide = false;
+
+                 sizesObj.x = pt[0] - r_correct/2;
+                 sizesObj.y = pt[1] - r_correct/2 - sizesObj.height;
+
+                 // Check move upper
+                 planetNameSize.forEach(function(bookedSize){
+                     var tempCheckStandardLabelLocationB = helpers.checkTextCollistion(bookedSize, sizesObj);
+                     if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
+                         isPlanetCollide = true;
+                     }
+                 });
+             }
+
+             if (isPlanetCollide) {
+                 isPlanetCollide = false;
+
+                 sizesObj.x = pt[0] - r_correct/2 - sizesObj.width;
+                 sizesObj.y = pt[1] - r_correct/2 - sizesObj.height;
+
+                 // Check move upper left
+                 planetNameSize.forEach(function(bookedSize){
+                     var tempCheckStandardLabelLocationC = helpers.checkTextCollistion(bookedSize, sizesObj);
+                     if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
+                         isPlanetCollide = true;
+                     }
+                 });
+             }
+
+             if (isPlanetCollide) {
+                 isPlanetCollide = false;
+
+                 sizesObj.x = pt[0] - r_correct/2 - sizesObj.width;
+                 sizesObj.y = pt[1] + r_correct/2;
+
+                 // Check move bottom left
+                 planetNameSize.forEach(function(bookedSize){
+                     var tempCheckStandardLabelLocationD = helpers.checkTextCollistion(bookedSize, sizesObj);
+                     if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
+                         isPlanetCollide = true;
+                     }
+                 });
+             }
+
+           return "translate(" + [sizesObj.x, sizesObj.y] + ")";
          })
          .text( function(d) {
            var pt = projection(d.geometry.coordinates);
@@ -5277,21 +5354,28 @@ Celestial.exportSVG = function(fname) {
            span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
            span.innerHTML = d.properties.name;
 
-           var sizesObj = {
-             name: name,
-             x: pt[0],
-             y: pt[1],
-             width: span.offsetWidth,
-             height: span.offsetHeight,
-           };
            span.remove();
            var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
 
            if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
-             return d.properties.name;
+               planetNameSize.push(sizesObj);
+              return d.properties.name;
            }
          })
-         .attr({dy: ".85em", dx: "-.35em"})
+         .attr('dy', function(d) {
+             var r_correct = 0;
+             if (cfg.planets.symbols[d.id].size) {
+                 r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+             }
+             return r_correct + 2 + 'px';
+         })
+         .attr('dx', function(d) {
+             var r_correct = 0;
+             if (cfg.planets.symbols[d.id].size) {
+                 r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+             }
+             return r_correct + 2 + 'px';
+         })
          .attr("class", function(d) { return "planetNames" + d.id; });
 
         jp.features.forEach(function(d) {
