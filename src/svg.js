@@ -242,7 +242,7 @@ Celestial.exportSVG = function(fname) {
 
            var textCollision = false;
            textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
-               return helpers.checkTextCollistion(constellationName, sizesObj);
+               return helpers.checkTextCollistion(constellationName, sizesObj, true);
            });
            span.remove();
 
@@ -503,6 +503,7 @@ Celestial.exportSVG = function(fname) {
               width: undefined,
               height: undefined,
           };
+          var BreakException = {};
 
         planets.data(jp.features)
          .enter().append("text")
@@ -519,67 +520,47 @@ Celestial.exportSVG = function(fname) {
              span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
              span.innerHTML = d.properties.name;
 
-           sizesObj.name = name;
-           sizesObj.x = pt[0] - r_correct/2;
+           sizesObj.name = d.properties.name;
+           sizesObj.x = pt[0] + r_correct;
            sizesObj.y = pt[1] + r_correct/2;
            sizesObj.width = span.offsetWidth;
            sizesObj.height = span.offsetHeight;
-
+            span.remove();
            var isPlanetCollide = false;
 
+           var count = 0;
+           var maxTries = 500;
+
              // Check standard label location
-             planetNameSize.forEach(function(bookedSize){
-                 var tempCheckStandardLabelLocation = helpers.checkTextCollistion(bookedSize, sizesObj);
-                 if (!isPlanetCollide && tempCheckStandardLabelLocation) {
-                     isPlanetCollide = true;
+         do {
+             var test = true;
+             try {
+                 planetNameSize.forEach(function (bookedSize) {
+                     var tempCheckStandardLabelLocation = helpers.checkTextCollistion(bookedSize, sizesObj, false);
+                     if (tempCheckStandardLabelLocation !== 'OK') {
+                         if (tempCheckStandardLabelLocation === 'RIGHT') {
+                             sizesObj.x++;
+                         } else if (tempCheckStandardLabelLocation === 'UP') {
+                             sizesObj.y--;
+                         } else if (tempCheckStandardLabelLocation === 'DOWN') {
+                             sizesObj.y++;
+                         }
+                         test = false;
+                         throw BreakException;
+                     }
+                 });
+             } catch (e) {
+                 if (e === BreakException) {
+                     count++;
                  }
-             });
-
-             if (isPlanetCollide) {
-                 isPlanetCollide = false;
-
-                 sizesObj.x = pt[0] - r_correct/2;
-                 sizesObj.y = pt[1] - r_correct/2 - sizesObj.height;
-
-                 // Check move upper
-                 planetNameSize.forEach(function(bookedSize){
-                     var tempCheckStandardLabelLocationB = helpers.checkTextCollistion(bookedSize, sizesObj);
-                     if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
-                         isPlanetCollide = true;
-                     }
-                 });
              }
-
-             if (isPlanetCollide) {
-                 isPlanetCollide = false;
-
-                 sizesObj.x = pt[0] - r_correct/2 - sizesObj.width;
-                 sizesObj.y = pt[1] - r_correct/2 - sizesObj.height;
-
-                 // Check move upper left
-                 planetNameSize.forEach(function(bookedSize){
-                     var tempCheckStandardLabelLocationC = helpers.checkTextCollistion(bookedSize, sizesObj);
-                     if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
-                         isPlanetCollide = true;
-                     }
-                 });
+             if (test) {
+                 count = maxTries + 1;
              }
+         } while (count < maxTries);
 
-             if (isPlanetCollide) {
-                 isPlanetCollide = false;
-
-                 sizesObj.x = pt[0] - r_correct/2 - sizesObj.width;
-                 sizesObj.y = pt[1] + r_correct/2;
-
-                 // Check move bottom left
-                 planetNameSize.forEach(function(bookedSize){
-                     var tempCheckStandardLabelLocationD = helpers.checkTextCollistion(bookedSize, sizesObj);
-                     if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
-                         isPlanetCollide = true;
-                     }
-                 });
-             }
-
+           var deepCopy = JSON.parse(JSON.stringify(sizesObj));
+           planetNameSize.push(deepCopy);
            return "translate(" + [sizesObj.x, sizesObj.y] + ")";
          })
          .text( function(d) {
@@ -600,7 +581,6 @@ Celestial.exportSVG = function(fname) {
            var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
 
            if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
-               planetNameSize.push(sizesObj);
               return d.properties.name;
            }
          })
@@ -1066,7 +1046,7 @@ var helpers = {
 
     return (A === A1 + A2 + A3 + A4);
   },
-  checkTextCollistion: function(bookedSize, sizesObj) {
+  checkTextCollistion: function(bookedSize, sizesObj, returnBoolean) {
     var isCollisionA = Celestial.helpers.pointInRectangle(
         bookedSize.x +  bookedSize.width,
         bookedSize.y,
@@ -1115,7 +1095,21 @@ var helpers = {
         sizesObj.x,
         sizesObj.y
     );
-    return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+    if (returnBoolean) {
+        return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+    } else {
+        if (isCollisionD && isCollisionC) {
+            return 'RIGHT';
+        } else if (isCollisionA && isCollisionB) {
+            return 'RIGHT';
+        } else if (isCollisionA || isCollisionD) {
+            return 'DOWN';
+        } else if (isCollisionC || isCollisionB) {
+            return 'UP';
+        } else {
+            return 'OK';
+        }
+    }
   }
 };
 
