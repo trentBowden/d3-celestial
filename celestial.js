@@ -534,13 +534,19 @@ Celestial.display = function(config) {
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
           var pt = mapProjection(d.geometry.coordinates);
-          var diag = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
+          var pe = context.measureText(constName(d));
 
-          // var pe = context.measureText(constName(d)).width;
-          // var diagEnd = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0]+pe, 2) + Math.pow(cr-pt[1], 2));
+          var sizesObj = {
+            name: name,
+            x: pt[0],
+            y: pt[1],
+            width: pe.width,
+            height: pe.actualBoundingBoxAscent + pe.actualBoundingBoxDescent,
+          };
 
-          // if (diag > 0 && diagEnd > 0) {
-          if (diag > 0) {
+          var planetsThreshold = cfg.constellations.nameStyle.threshold || 1;
+
+          if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
             context.fillText(constName(d), pt[0], pt[1]);
           }
         }
@@ -631,18 +637,8 @@ Celestial.display = function(config) {
             var canvas = document.getElementsByTagName('canvas');
 
             var cr = canvas[0].offsetWidth / 2;
-            var diag = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0] - r/2, 2) + Math.pow(cr-pt[1] + r/2, 2));
-
-            context.beginPath();
-            context.arc(cr, cr, cr, 0, 2 * Math.PI);
-            // context.fillStyle('#006600');
-            context.stroke();
-
             var pe = context.measureText(name);
-            // var diagEnd = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0]+pe, 2) + Math.pow(cr-pt[1], 2));
 
-            // if (diag > 0 && diagEnd > 0) {
-            if (diag > 0) {
               var sizesObj = {
                 name: name,
                 x: pt[0] - r/2,
@@ -655,7 +651,7 @@ Celestial.display = function(config) {
 
               // Check standard label location
               planetNameSize.forEach(function(bookedSize){
-                var tempCheckStandardLabelLocation = Celestial.helpers.checkTextColistion(bookedSize, sizesObj);
+                var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
                 if (!isPlanetCollide && tempCheckStandardLabelLocation) {
                   isPlanetCollide = true;
                 }
@@ -669,7 +665,7 @@ Celestial.display = function(config) {
 
                 // Check move upper
                 planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationB = Celestial.helpers.checkTextColistion(bookedSize, sizesObj);
+                  var tempCheckStandardLabelLocationB = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
                   if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
                     isPlanetCollide = true;
                   }
@@ -684,7 +680,7 @@ Celestial.display = function(config) {
 
                 // Check move upper left
                 planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationC = Celestial.helpers.checkTextColistion(bookedSize, sizesObj);
+                  var tempCheckStandardLabelLocationC = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
                   if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
                     isPlanetCollide = true;
                   }
@@ -699,20 +695,22 @@ Celestial.display = function(config) {
 
                 // Check move bottom left
                 planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationD = Celestial.helpers.checkTextColistion(bookedSize, sizesObj);
+                  var tempCheckStandardLabelLocationD = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
                   if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
                     isPlanetCollide = true;
                   }
                 });
               }
 
-              planetNameSize.push(sizesObj);
+              var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
+              if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
+                planetNameSize.push(sizesObj);
 
-              var xPos = sizesObj.x;
-              var yPos = sizesObj.y;
+                var xPos = sizesObj.x;
+                var yPos = sizesObj.y;
 
-              context.fillText(name, xPos, yPos);
-            }
+                context.fillText(name, xPos, yPos);
+              }
           }
         }
       });
@@ -723,6 +721,35 @@ Celestial.display = function(config) {
         return Math.abs((x1 * (y2 - y3) +
             x2 * (y3 - y1) +
             x3 * (y1 - y2)) / 2.0);
+      },
+      pointInCircle: function(x, y, cx, cy, r) {
+        var distanceSquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+        return distanceSquared <= r * r;
+      },
+      checkTextInsideCircle: function(sizesObj, cx, cy, r) {
+        var isCollisionA = Celestial.helpers.pointInCircle(
+            sizesObj.x + sizesObj.width,
+            sizesObj.y,
+            cx, cy, r
+        );
+        var isCollisionB = Celestial.helpers.pointInCircle(
+            sizesObj.x + sizesObj.width,
+            sizesObj.y + sizesObj.height,
+            cx, cy, r
+        );
+        var isCollisionC = Celestial.helpers.pointInCircle(
+            sizesObj.x,
+            sizesObj.y + sizesObj.height,
+            cx, cy, r
+        );
+        var isCollisionD = Celestial.helpers.pointInCircle(
+            sizesObj.x,
+            sizesObj.y,
+            cx, cy, r
+        );
+
+        console.log(isCollisionA , isCollisionB , isCollisionC , isCollisionD);
+        return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
       },
       pointInRectangle: function(x1, y1, x2, y2, x3, y3, x4, y4, x, y) {
         x1 = Math.round(x1);
@@ -744,7 +771,7 @@ Celestial.display = function(config) {
 
         return (A === A1 + A2 + A3 + A4);
       },
-      checkTextColistion: function(bookedSize, sizesObj) {
+      checkTextCollistion: function(bookedSize, sizesObj) {
          var isCollisionA = Celestial.helpers.pointInRectangle(
             bookedSize.x +  bookedSize.width,
             bookedSize.y,
@@ -793,11 +820,7 @@ Celestial.display = function(config) {
             sizesObj.x,
             sizesObj.y
         );
-        if (isCollisionA || isCollisionB || isCollisionC || isCollisionD) {
-          console.log('RETURN TRUE');
-          return true;
-        }
-        return false;
+        return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
       }
     };
 
