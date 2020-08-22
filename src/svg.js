@@ -587,7 +587,13 @@ Celestial.exportSVG = function(fname) {
 
            var span = document.createElement('span');
            document.body.append(span);
-           span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
+           var style = 'font-family: ';
+           style += cfg.planets.nameStyle.fontFamily || 'Helvetica, Arial, sans-serif';
+           style += ';';
+           style += 'font-size: ';
+           style += cfg.planets.nameStyle.fontSize || '20px';
+           style += ';';
+           span.style = style;
            span.innerHTML = d.properties.name;
 
            span.remove();
