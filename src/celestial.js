@@ -543,9 +543,9 @@ Celestial.display = function(config) {
             height: pe.actualBoundingBoxAscent + pe.actualBoundingBoxDescent,
           };
 
-          var planetsThreshold = cfg.constellations.nameStyle.threshold || 1;
+          var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
 
-          if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
+          if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
             context.fillText(constName(d), pt[0], pt[1]);
           }
         }
@@ -747,7 +747,6 @@ Celestial.display = function(config) {
             cx, cy, r
         );
 
-        console.log(isCollisionA , isCollisionB , isCollisionC , isCollisionD);
         return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
       },
       pointInRectangle: function(x1, y1, x2, y2, x3, y3, x4, y4, x, y) {

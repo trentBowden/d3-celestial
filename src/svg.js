@@ -222,9 +222,23 @@ Celestial.exportSVG = function(fname) {
          .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
          .text( function(d) {
            var pt = projection(d.geometry.coordinates);
-           var diag = Math.pow(cr * cfg.constellations.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
 
-           if (diag > 0) {
+           var span = document.createElement('span');
+           document.body.append(span);
+           span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
+           span.innerHTML = constName(d);
+
+           var sizesObj = {
+             name: name,
+             x: pt[0],
+             y: pt[1],
+             width: span.offsetWidth,
+             height: span.offsetHeight,
+           };
+           span.remove();
+           var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
+
+           if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
              return constName(d);
            }
          } );
@@ -481,9 +495,23 @@ Celestial.exportSVG = function(fname) {
          })
          .text( function(d) {
            var pt = projection(d.geometry.coordinates);
-           var diag = Math.pow(cr * cfg.planets.nameStyle.threshold, 2) - (Math.pow(cr-pt[0], 2) + Math.pow(cr-pt[1], 2));
 
-           if (diag > 0) {
+           var span = document.createElement('span');
+           document.body.append(span);
+           span.style = 'font-family: Helvetica, Arial, sans-serif; font-size: 20px';
+           span.innerHTML = d.properties.name;
+
+           var sizesObj = {
+             name: name,
+             x: pt[0],
+             y: pt[1],
+             width: span.offsetWidth,
+             height: span.offsetHeight,
+           };
+           span.remove();
+           var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
+
+           if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
              return d.properties.name;
            }
          })
@@ -880,6 +908,113 @@ Celestial.exportSVG = function(fname) {
   }
 
 
+};
+
+var helpers = {
+  area: function(x1, y1, x2, y2, x3, y3) {
+    return Math.abs((x1 * (y2 - y3) +
+        x2 * (y3 - y1) +
+        x3 * (y1 - y2)) / 2.0);
+  },
+  pointInCircle: function(x, y, cx, cy, r) {
+    var distanceSquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+    return distanceSquared <= r * r;
+  },
+  checkTextInsideCircle: function(sizesObj, cx, cy, r) {
+    var isCollisionA = Celestial.helpers.pointInCircle(
+        sizesObj.x + sizesObj.width,
+        sizesObj.y,
+        cx, cy, r
+    );
+    var isCollisionB = Celestial.helpers.pointInCircle(
+        sizesObj.x + sizesObj.width,
+        sizesObj.y + sizesObj.height,
+        cx, cy, r
+    );
+    var isCollisionC = Celestial.helpers.pointInCircle(
+        sizesObj.x,
+        sizesObj.y + sizesObj.height,
+        cx, cy, r
+    );
+    var isCollisionD = Celestial.helpers.pointInCircle(
+        sizesObj.x,
+        sizesObj.y,
+        cx, cy, r
+    );
+
+    return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+  },
+  pointInRectangle: function(x1, y1, x2, y2, x3, y3, x4, y4, x, y) {
+    x1 = Math.round(x1);
+    x2 = Math.round(x2);
+    x3 = Math.round(x3);
+    x4 = Math.round(x4);
+    x = Math.round(x);
+    y1 = Math.round(y1);
+    y2 = Math.round(y2);
+    y3 = Math.round(y3);
+    y4 = Math.round(y4);
+    y = Math.round(y);
+    var A = (Celestial.helpers.area(x1, y1, x2, y2, x3, y3) +
+        Celestial.helpers.area(x1, y1, x4, y4, x3, y3));
+    var A1 = Celestial.helpers.area(x, y, x1, y1, x2, y2);
+    var A2 = Celestial.helpers.area(x, y, x2, y2, x3, y3);
+    var A3 = Celestial.helpers.area(x, y, x3, y3, x4, y4);
+    var A4 = Celestial.helpers.area(x, y, x1, y1, x4, y4);
+
+    return (A === A1 + A2 + A3 + A4);
+  },
+  checkTextCollistion: function(bookedSize, sizesObj) {
+    var isCollisionA = Celestial.helpers.pointInRectangle(
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y,
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y,
+        sizesObj.x + sizesObj.width,
+        sizesObj.y
+    );
+    var isCollisionB = Celestial.helpers.pointInRectangle(
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y,
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y,
+        sizesObj.x + sizesObj.width,
+        sizesObj.y + sizesObj.height
+    );
+    var isCollisionC = Celestial.helpers.pointInRectangle(
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y,
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y,
+        sizesObj.x,
+        sizesObj.y + sizesObj.height
+    );
+    var isCollisionD = Celestial.helpers.pointInRectangle(
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y,
+        bookedSize.x +  bookedSize.width,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y + bookedSize.height,
+        bookedSize.x,
+        bookedSize.y,
+        sizesObj.x,
+        sizesObj.y
+    );
+    return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+  }
 };
 
 var customSvgSymbols = d3.map({
