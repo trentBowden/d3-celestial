@@ -598,20 +598,20 @@ Celestial.exportSVG = function(fname) {
               return d.properties.name;
            }
          })
-         .attr('dy', function(d) {
-             var r_correct = 0;
-             if (cfg.planets.symbols[d.id].size) {
-                 r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
-             }
-             return r_correct + 2 + 'px';
-         })
-         .attr('dx', function(d) {
-             var r_correct = 0;
-             if (cfg.planets.symbols[d.id].size) {
-                 r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
-             }
-             return r_correct + 2 + 'px';
-         })
+         // .attr('dy', function(d) {
+         //     var r_correct = 0;
+         //     if (cfg.planets.symbols[d.id].size) {
+         //         r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+         //     }
+         //     return r_correct + 2 + 'px';
+         // })
+         // .attr('dx', function(d) {
+         //     var r_correct = 0;
+         //     if (cfg.planets.symbols[d.id].size) {
+         //         r_correct = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
+         //     }
+         //     return r_correct + 2 + 'px';
+         // })
          .attr("class", function(d) { return "planetNames" + d.id; });
 
         jp.features.forEach(function(d) {
