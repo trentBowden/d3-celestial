@@ -213,6 +213,8 @@ Celestial.exportSVG = function(fname) {
         var conn = getData(json, cfg.transform);
         var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
 
+        var constellationsNamesSizeObjects = [];
+
         groups.constNames.selectAll(".constnames")
          .data(conn.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1;
@@ -229,17 +231,27 @@ Celestial.exportSVG = function(fname) {
            span.innerHTML = constName(d);
 
            var sizesObj = {
-             name: name,
+             name: constName(d),
              x: pt[0],
              y: pt[1],
              width: span.offsetWidth,
              height: span.offsetHeight,
            };
-           span.remove();
+
            var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
 
-           if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+           var textCollision = false;
+           textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
+               return helpers.checkTextCollistion(constellationName, sizesObj);
+           });
+           span.remove();
+
+           if (!textCollision && helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+             constellationsNamesSizeObjects.push(sizesObj);
              return constName(d);
+           }
+           if (textCollision) {
+               console.log(sizesObj);
            }
          } );
 

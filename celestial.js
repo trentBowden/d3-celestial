@@ -530,6 +530,8 @@ Celestial.display = function(config) {
       var canvas = document.getElementsByTagName('canvas');
       var cr = canvas[0].offsetWidth / 2;
 
+      var constellationsNamesSizeObjects = [];
+
       container.selectAll(".constname").each( function(d) {
         if (clip(d.geometry.coordinates)) {
           setStyleA(d.properties.rank, cfg.constellations.nameStyle);
@@ -537,7 +539,7 @@ Celestial.display = function(config) {
           var pe = context.measureText(constName(d));
 
           var sizesObj = {
-            name: name,
+            name: constName(d),
             x: pt[0],
             y: pt[1],
             width: pe.width,
@@ -546,7 +548,14 @@ Celestial.display = function(config) {
 
           var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
 
-          if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+          var textCollision = false;
+
+          textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
+            return Celestial.helpers.checkTextCollistion(constellationName, sizesObj);
+          });
+
+          if (!textCollision && Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+            constellationsNamesSizeObjects.push(sizesObj);
             context.fillText(constName(d), pt[0], pt[1]);
           }
         }
@@ -4968,6 +4977,8 @@ Celestial.exportSVG = function(fname) {
         var conn = getData(json, cfg.transform);
         var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
 
+        var constellationsNamesSizeObjects = [];
+
         groups.constNames.selectAll(".constnames")
          .data(conn.features.filter( function(d) {
             return clip(d.geometry.coordinates) === 1;
@@ -4984,17 +4995,27 @@ Celestial.exportSVG = function(fname) {
            span.innerHTML = constName(d);
 
            var sizesObj = {
-             name: name,
+             name: constName(d),
              x: pt[0],
              y: pt[1],
              width: span.offsetWidth,
              height: span.offsetHeight,
            };
-           span.remove();
+
            var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
 
-           if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+           var textCollision = false;
+           textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
+               return helpers.checkTextCollistion(constellationName, sizesObj);
+           });
+           span.remove();
+
+           if (!textCollision && helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+             constellationsNamesSizeObjects.push(sizesObj);
              return constName(d);
+           }
+           if (textCollision) {
+               console.log(sizesObj);
            }
          } );
 
