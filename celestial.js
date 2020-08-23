@@ -668,7 +668,6 @@ Celestial.display = function(config) {
               try {
                 planetLabelObjects.forEach(function (bookedSize) {
                   var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj, false);
-                  console.log(tempCheckStandardLabelLocation);
                   if (tempCheckStandardLabelLocation !== 'OK') {
                     if (tempCheckStandardLabelLocation === 'RIGHT') {
                       sizesObj.x++;
@@ -690,58 +689,6 @@ Celestial.display = function(config) {
                 count = maxTries + 1;
               }
             } while (count < maxTries);
-
-              // planetLabelObjects.forEach(function(bookedSize){
-              //   var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-              //   if (!isPlanetCollide && tempCheckStandardLabelLocation) {
-              //     isPlanetCollide = true;
-              //   }
-              // });
-              //
-              // if (isPlanetCollide) {
-              //   isPlanetCollide = false;
-              //
-              //   sizesObj.x = pt[0] - r/2;
-              //   sizesObj.y = pt[1] - r/2 - sizesObj.height;
-              //
-              //   // Check move upper
-              //   planetLabelObjects.forEach(function(bookedSize){
-              //     var tempCheckStandardLabelLocationB = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-              //     if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
-              //       isPlanetCollide = true;
-              //     }
-              //   });
-              // }
-              //
-              // if (isPlanetCollide) {
-              //   isPlanetCollide = false;
-              //
-              //   sizesObj.x = pt[0] - r/2 - sizesObj.width;
-              //   sizesObj.y = pt[1] - r/2 - sizesObj.height;
-              //
-              //   // Check move upper left
-              //   planetLabelObjects.forEach(function(bookedSize){
-              //     var tempCheckStandardLabelLocationC = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-              //     if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
-              //       isPlanetCollide = true;
-              //     }
-              //   });
-              // }
-              //
-              // if (isPlanetCollide) {
-              //   isPlanetCollide = false;
-              //
-              //   sizesObj.x = pt[0] - r/2 - sizesObj.width;
-              //   sizesObj.y = pt[1] + r/2;
-              //
-              //   // Check move bottom left
-              //   planetLabelObjects.forEach(function(bookedSize){
-              //     var tempCheckStandardLabelLocationD = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-              //     if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
-              //       isPlanetCollide = true;
-              //     }
-              //   });
-              // }
 
               var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
               if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
