@@ -464,7 +464,6 @@ Celestial.exportSVG = function(fname) {
            sizesObj.width = span.offsetWidth;
            sizesObj.height = span.offsetHeight;
             span.remove();
-           var isPlanetCollide = false;
 
            var count = 0;
            var maxTries = 500;

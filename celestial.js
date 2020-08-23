@@ -551,7 +551,7 @@ Celestial.display = function(config) {
           var textCollision = false;
 
           textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
-            return Celestial.helpers.checkTextCollistion(constellationName, sizesObj);
+            return Celestial.helpers.checkTextCollistion(constellationName, sizesObj, true);
           });
 
           if (!textCollision && Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
@@ -609,7 +609,7 @@ Celestial.display = function(config) {
     if ((cfg.location || cfg.formFields.location) && cfg.planets.show && Celestial.origin) {
       var dt = Celestial.date(),
           o = Celestial.origin(dt).spherical();
-      var planetNameSize = [];
+      var planetLabelObjects = [];
 
       container.selectAll(".planet").each(function(d) {
         var id = d.id(), r = 12 * adapt,
@@ -650,8 +650,8 @@ Celestial.display = function(config) {
 
               var sizesObj = {
                 name: name,
-                x: pt[0] - r/2,
-                y: pt[1] + r/2,
+                x: pt[0] + r/2 + 2,
+                y: pt[1] - r/2,
                 width: pe.width,
                 height: pe.actualBoundingBoxAscent + pe.actualBoundingBoxDescent,
               };
@@ -659,61 +659,93 @@ Celestial.display = function(config) {
               var isPlanetCollide = false;
 
               // Check standard label location
-              planetNameSize.forEach(function(bookedSize){
-                var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-                if (!isPlanetCollide && tempCheckStandardLabelLocation) {
-                  isPlanetCollide = true;
+            var count = 0;
+            var maxTries = 500;
+            var BreakException = {};
+
+            do {
+              var test = true;
+              try {
+                planetLabelObjects.forEach(function (bookedSize) {
+                  var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj, false);
+                  console.log(tempCheckStandardLabelLocation);
+                  if (tempCheckStandardLabelLocation !== 'OK') {
+                    if (tempCheckStandardLabelLocation === 'RIGHT') {
+                      sizesObj.x++;
+                    } else if (tempCheckStandardLabelLocation === 'UP') {
+                      sizesObj.y--;
+                    } else if (tempCheckStandardLabelLocation === 'DOWN') {
+                      sizesObj.y++;
+                    }
+                    test = false;
+                    throw BreakException;
+                  }
+                });
+              } catch (e) {
+                if (e === BreakException) {
+                  count++;
                 }
-              });
-
-              if (isPlanetCollide) {
-                isPlanetCollide = false;
-
-                sizesObj.x = pt[0] - r/2;
-                sizesObj.y = pt[1] - r/2 - sizesObj.height;
-
-                // Check move upper
-                planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationB = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-                  if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
-                    isPlanetCollide = true;
-                  }
-                });
               }
-
-              if (isPlanetCollide) {
-                isPlanetCollide = false;
-
-                sizesObj.x = pt[0] - r/2 - sizesObj.width;
-                sizesObj.y = pt[1] - r/2 - sizesObj.height;
-
-                // Check move upper left
-                planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationC = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-                  if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
-                    isPlanetCollide = true;
-                  }
-                });
+              if (test) {
+                count = maxTries + 1;
               }
+            } while (count < maxTries);
 
-              if (isPlanetCollide) {
-                isPlanetCollide = false;
-
-                sizesObj.x = pt[0] - r/2 - sizesObj.width;
-                sizesObj.y = pt[1] + r/2;
-
-                // Check move bottom left
-                planetNameSize.forEach(function(bookedSize){
-                  var tempCheckStandardLabelLocationD = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
-                  if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
-                    isPlanetCollide = true;
-                  }
-                });
-              }
+              // planetLabelObjects.forEach(function(bookedSize){
+              //   var tempCheckStandardLabelLocation = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
+              //   if (!isPlanetCollide && tempCheckStandardLabelLocation) {
+              //     isPlanetCollide = true;
+              //   }
+              // });
+              //
+              // if (isPlanetCollide) {
+              //   isPlanetCollide = false;
+              //
+              //   sizesObj.x = pt[0] - r/2;
+              //   sizesObj.y = pt[1] - r/2 - sizesObj.height;
+              //
+              //   // Check move upper
+              //   planetLabelObjects.forEach(function(bookedSize){
+              //     var tempCheckStandardLabelLocationB = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
+              //     if (!isPlanetCollide && tempCheckStandardLabelLocationB) {
+              //       isPlanetCollide = true;
+              //     }
+              //   });
+              // }
+              //
+              // if (isPlanetCollide) {
+              //   isPlanetCollide = false;
+              //
+              //   sizesObj.x = pt[0] - r/2 - sizesObj.width;
+              //   sizesObj.y = pt[1] - r/2 - sizesObj.height;
+              //
+              //   // Check move upper left
+              //   planetLabelObjects.forEach(function(bookedSize){
+              //     var tempCheckStandardLabelLocationC = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
+              //     if (!isPlanetCollide && tempCheckStandardLabelLocationC) {
+              //       isPlanetCollide = true;
+              //     }
+              //   });
+              // }
+              //
+              // if (isPlanetCollide) {
+              //   isPlanetCollide = false;
+              //
+              //   sizesObj.x = pt[0] - r/2 - sizesObj.width;
+              //   sizesObj.y = pt[1] + r/2;
+              //
+              //   // Check move bottom left
+              //   planetLabelObjects.forEach(function(bookedSize){
+              //     var tempCheckStandardLabelLocationD = Celestial.helpers.checkTextCollistion(bookedSize, sizesObj);
+              //     if (!isPlanetCollide && tempCheckStandardLabelLocationD) {
+              //       isPlanetCollide = true;
+              //     }
+              //   });
+              // }
 
               var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
               if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
-                planetNameSize.push(sizesObj);
+                planetLabelObjects.push(sizesObj);
 
                 var xPos = sizesObj.x;
                 var yPos = sizesObj.y;
@@ -779,7 +811,7 @@ Celestial.display = function(config) {
 
         return (A === A1 + A2 + A3 + A4);
       },
-      checkTextCollistion: function(bookedSize, sizesObj) {
+      checkTextCollistion: function(bookedSize, sizesObj, returnBoolean) {
          var isCollisionA = Celestial.helpers.pointInRectangle(
             bookedSize.x +  bookedSize.width,
             bookedSize.y,
@@ -828,7 +860,21 @@ Celestial.display = function(config) {
             sizesObj.x,
             sizesObj.y
         );
-        return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+        if (returnBoolean) {
+          return isCollisionA || isCollisionB || isCollisionC || isCollisionD;
+        } else {
+          if (isCollisionD && isCollisionC) {
+            return 'RIGHT';
+          } else if (isCollisionA && isCollisionB) {
+            return 'RIGHT';
+          } else if (isCollisionA || isCollisionD) {
+            return 'DOWN';
+          } else if (isCollisionC || isCollisionB) {
+            return 'UP';
+          } else {
+            return 'OK';
+          }
+        }
       }
     };
 
@@ -5228,7 +5274,6 @@ Celestial.exportSVG = function(fname) {
            sizesObj.width = span.offsetWidth;
            sizesObj.height = span.offsetHeight;
             span.remove();
-           var isPlanetCollide = false;
 
            var count = 0;
            var maxTries = 500;
