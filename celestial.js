@@ -4779,6 +4779,7 @@ Celestial.exportSVG = function(fname) {
       adapt = cfg.adaptable ? Math.sqrt(m.scale/scale0) : 1,
       culture = (cfg.culture !== "" && cfg.culture !== "iau") ? cfg.culture : "",
       circle, id;
+  var planetLabelObjects = [];
 
   svg.selectAll("*").remove();
 
@@ -4967,80 +4968,6 @@ Celestial.exportSVG = function(fname) {
     projection.rotate(rot);
     callback(null);
   });
-
-  //Constellation names or designation
-  if (cfg.constellations.names) {
-    q.defer(function(callback) {
-      d3.json(path + filename("constellations"), function(error, json) {
-        if (error) callback(error);
-
-        var conn = getData(json, cfg.transform);
-        var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
-
-        var constellationsNamesSizeObjects = [];
-
-        groups.constNames.selectAll(".constnames")
-         .data(conn.features.filter( function(d) {
-            return clip(d.geometry.coordinates) === 1;
-          }))
-         .enter().append("text")
-         .attr("class", function(d) { return "constNames" + d.properties.rank; })
-         .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
-         .text( function(d) {
-           var pt = projection(d.geometry.coordinates);
-
-           var span = document.createElement('span');
-           document.body.append(span);
-             var style = 'font-family: ';
-             style += cfg.planets.nameStyle.fontFamily || 'Helvetica, Arial, sans-serif';
-             style += ';';
-             style += 'font-size: ';
-             style += cfg.planets.nameStyle.fontSize || '20px';
-             style += ';';
-           span.style = style;
-           span.innerHTML = constName(d);
-
-           var sizesObj = {
-             name: constName(d),
-             x: pt[0],
-             y: pt[1],
-             width: span.offsetWidth,
-             height: span.offsetHeight,
-           };
-
-           var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
-
-           var textCollision = false;
-           textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
-               return helpers.checkTextCollistion(constellationName, sizesObj, true);
-           });
-           span.remove();
-
-           if (!textCollision && helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
-             constellationsNamesSizeObjects.push(sizesObj);
-             return constName(d);
-           }
-           if (textCollision) {
-               console.log(sizesObj);
-           }
-         } );
-
-        styles.constNames1 = {"fill": cfg.constellations.nameStyle.fill[0],
-                              "fill-opacity": cfg.constellations.nameStyle.opacity[0],
-                              "font": cfg.constellations.nameStyle.font[0],
-                              "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
-        styles.constNames2 = {"fill": cfg.constellations.nameStyle.fill[1],
-                              "fill-opacity": cfg.constellations.nameStyle.opacity[1],
-                              "font": cfg.constellations.nameStyle.font[1],
-                              "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
-        styles.constNames3 = {"fill": cfg.constellations.nameStyle.fill[2],
-                              "fill-opacity": cfg.constellations.nameStyle.opacity[2],
-                              "font": cfg.constellations.nameStyle.font[2],
-                              "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
-        callback(null);
-      });
-    });
-  }
 
   //Stars
   if (cfg.stars.show) {
@@ -5265,7 +5192,6 @@ Celestial.exportSVG = function(fname) {
 
         var planets = groups.planetNames.selectAll(".planetnames");
 
-        var planetNameSize = [];
           var sizesObj = {
               name: '',
               x: undefined,
@@ -5311,7 +5237,7 @@ Celestial.exportSVG = function(fname) {
          do {
              var test = true;
              try {
-                 planetNameSize.forEach(function (bookedSize) {
+                 planetLabelObjects.forEach(function (bookedSize) {
                      var tempCheckStandardLabelLocation = helpers.checkTextCollistion(bookedSize, sizesObj, false);
                      if (tempCheckStandardLabelLocation !== 'OK') {
                          if (tempCheckStandardLabelLocation === 'RIGHT') {
@@ -5336,7 +5262,7 @@ Celestial.exportSVG = function(fname) {
          } while (count < maxTries);
 
            var deepCopy = JSON.parse(JSON.stringify(sizesObj));
-           planetNameSize.push(deepCopy);
+           planetLabelObjects.push(deepCopy);
            return "translate(" + [sizesObj.x, sizesObj.y] + ")";
          })
          .text( function(d) {
@@ -5354,11 +5280,11 @@ Celestial.exportSVG = function(fname) {
            span.innerHTML = d.properties.name;
 
            span.remove();
-           var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
+           // var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
 
-           if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
-              return d.properties.name;
-           }
+           // if (helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
+           return d.properties.name;
+           // }
          })
          // .attr('dy', function(d) {
          //     var r_correct = 0;
@@ -5406,6 +5332,82 @@ Celestial.exportSVG = function(fname) {
       callback(null);
     });
   }
+
+  //Constellation names or designation
+  if (cfg.constellations.names) {
+        q.defer(function(callback) {
+            d3.json(path + filename("constellations"), function(error, json) {
+                if (error) callback(error);
+
+                var conn = getData(json, cfg.transform);
+                var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
+
+                var constellationsNamesSizeObjects = [];
+                constellationsNamesSizeObjects = constellationsNamesSizeObjects.concat(planetLabelObjects);
+                console.log('planetLabelObjects', planetLabelObjects);
+                console.log('constellationsNamesSizeObjects', constellationsNamesSizeObjects);
+                groups.constNames.selectAll(".constnames")
+                    .data(conn.features.filter( function(d) {
+                        return clip(d.geometry.coordinates) === 1;
+                    }))
+                    .enter().append("text")
+                    .attr("class", function(d) { return "constNames" + d.properties.rank; })
+                    .attr("transform", function(d, i) { return point(d.geometry.coordinates); })
+                    .text( function(d) {
+                        var pt = projection(d.geometry.coordinates);
+
+                        var span = document.createElement('span');
+                        document.body.append(span);
+                        var style = 'font-family: ';
+                        style += cfg.planets.nameStyle.fontFamily || 'Helvetica, Arial, sans-serif';
+                        style += ';';
+                        style += 'font-size: ';
+                        style += cfg.planets.nameStyle.fontSize || '20px';
+                        style += ';';
+                        span.style = style;
+                        span.innerHTML = constName(d);
+
+                        var sizesObj = {
+                            name: constName(d),
+                            x: pt[0] - (span.offsetWidth / 2), // Constellation names are position text-anchor: middle;
+                            y: pt[1],
+                            width: span.offsetWidth,
+                            height: span.offsetHeight,
+                        };
+
+                        // var constellationThreshold = cfg.constellations.nameStyle.threshold || 1;
+
+                        var textCollision = false;
+                        textCollision = !!constellationsNamesSizeObjects.find(function(constellationName) {
+                            return helpers.checkTextCollistion(constellationName, sizesObj, true);
+                        });
+                        span.remove();
+                        // && helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)
+                        if (!textCollision) {
+                            constellationsNamesSizeObjects.push(sizesObj);
+                            return constName(d);
+                        }
+                        if (textCollision) {
+                            console.log('Removed constlellation label', sizesObj);
+                        }
+                    } );
+
+                styles.constNames1 = {"fill": cfg.constellations.nameStyle.fill[0],
+                    "fill-opacity": cfg.constellations.nameStyle.opacity[0],
+                    "font": cfg.constellations.nameStyle.font[0],
+                    "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
+                styles.constNames2 = {"fill": cfg.constellations.nameStyle.fill[1],
+                    "fill-opacity": cfg.constellations.nameStyle.opacity[1],
+                    "font": cfg.constellations.nameStyle.font[1],
+                    "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
+                styles.constNames3 = {"fill": cfg.constellations.nameStyle.fill[2],
+                    "fill-opacity": cfg.constellations.nameStyle.opacity[2],
+                    "font": cfg.constellations.nameStyle.font[2],
+                    "text-anchor": svgAlign(cfg.constellations.nameStyle.align)};
+                callback(null);
+            });
+        });
+    }
 
   if ((cfg.location || cfg.formFields.location) && cfg.daylight.show && proj.clip) {
     q.defer(function(callback) {
