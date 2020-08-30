@@ -2070,6 +2070,7 @@ var formats = {
         "ja": "Japanese",
         "ko": "Korean",
         "la": "Latin",
+        "pl": "Polish",
         "fa": "Persian",
         "ru": "Russian",
         "es": "Spanish",
@@ -2105,6 +2106,7 @@ var formats = {
         "ko": "Korean",
         "la": "Latin",
         "fa": "Persian",
+        "pl": "Polish",
         "ru": "Russian",
         "es": "Spanish",
         "tr": "Turkish"}
@@ -2136,6 +2138,7 @@ var formats = {
         "ja": "Japanese",
         "ko": "Korean",
         "la": "Latin",
+        "pl": "Polish",
         "fa": "Persian",
         "ru": "Russian",
         "es": "Spanish"}
@@ -2170,8 +2173,8 @@ var formats = {
         "ko": "Korean",
         "la": "Latin",
         "fa": "Persian",
-        "ru": "Russian",
         "pl": "Polish",
+        "ru": "Russian",
         "es": "Spanish",
         "tr": "Turkish"}
     },
