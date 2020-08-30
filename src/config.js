@@ -4,11 +4,11 @@
 var globalConfig = {};
 
 //Defaults
-var settings = { 
+var settings = {
   width: 0,     // Default width; height is determined by projection
   projection: "aitoff",  // Map projection used: airy, aitoff, armadillo, august, azimuthalEqualArea, azimuthalEquidistant, baker, berghaus, boggs, bonne, bromley, collignon, craig, craster, cylindricalEqualArea, cylindricalStereographic, eckert1, eckert2, eckert3, eckert4, eckert5, eckert6, eisenlohr, equirectangular, fahey, foucaut, ginzburg4, ginzburg5, ginzburg6, ginzburg8, ginzburg9, gringorten, hammer, hatano, healpix, hill, homolosine, kavrayskiy7, lagrange, larrivee, laskowski, loximuthal, mercator, miller, mollweide, mtFlatPolarParabolic, mtFlatPolarQuartic, mtFlatPolarSinusoidal, naturalEarth, nellHammer, orthographic, patterson, polyconic, rectangularPolyconic, robinson, sinusoidal, stereographic, times, twoPointEquidistant, vanDerGrinten, vanDerGrinten2, vanDerGrinten3, vanDerGrinten4, wagner4, wagner6, wagner7, wiechel, winkel3
   transform: "equatorial", // Coordinate transformation: equatorial (default), ecliptic, galactic, supergalactic
-  center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees], 
+  center: null,       // Initial center coordinates in equatorial transformation [hours, degrees, degrees],
                       // otherwise [degrees, degrees, degrees], 3rd parameter is orientation, null = default center
   geopos: null,       // optional initial geographic position [lat,lon] in degrees, overrides center
   follow: "zenith",   // on which coordinates to center the map, default: zenith, if location enabled, otherwise center
@@ -22,7 +22,7 @@ var settings = {
   // Set visiblity for each group of fields of the form
   formFields: {"location": true, "general": true, "stars": true, "dsos": true, "constellations": true, "lines": true, "other": true, download: false},
   advanced: true,     // Display fewer form fields if false
-  daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10; 
+  daterange: [],      // Calender date range; null: displaydate-+10; [n<100]: displaydate-+n; [yr]: yr-+10;
                       // [yr, n<100]: [yr-n, yr+n]; [yr0, yr1]
   settimezone: true,  // Automatcally set time zone when geolocation changes
   timezoneid: "AEFXZPQ3FDPF", // Account ID for TimeZoneDB service, please get your own
@@ -37,7 +37,7 @@ var settings = {
     limit: 6,      // Show only stars brighter than limit magnitude
     colors: true,  // Show stars in spectral colors, if not use fill-style
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
-    designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation, 
+    designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation,
                        // i.e. whichever of the previous applies first); may vary with culture setting
     designationType: "desig",  // Which kind of name is displayed as designation (fieldname in starnames.json)
     designationStyle: { fill: "#ddddbb", font: "11px 'Palatino Linotype', Georgia, Times, 'Times Roman', serif", align: "left", baseline: "top" },
@@ -51,7 +51,7 @@ var settings = {
     data: "stars.6.json" // Data source for stellar data
   },
   dsos: {
-    show: true,    // Show Deep Space Objects 
+    show: true,    // Show Deep Space Objects
     limit: 6,      // Show only DSOs brighter than limit magnitude
     colors: true,  // Show DSOs in symbol colors if true, use style setting below if false
     style: { fill: "#cccccc", stroke: "#cccccc", width: 2, opacity: 1 }, // Default style for dsos
@@ -76,60 +76,60 @@ var settings = {
       bn: {shape: "square", fill: "#ff00cc"},                                 // Generic bright nebula
       sfr:{shape: "square", fill: "#cc00ff"},                                 // Star forming region
       rn: {shape: "square", fill: "#0000ff"},                                 // Reflection nebula
-      pn: {shape: "diamond", fill: "#00cccc"},                                // Planetary nebula 
+      pn: {shape: "diamond", fill: "#00cccc"},                                // Planetary nebula
       snr:{shape: "diamond", fill: "#ff00cc"},                                // Supernova remnant
-      dn: {shape: "square", fill: "#999999", stroke: "#999999", width: 2},    // Dark nebula 
+      dn: {shape: "square", fill: "#999999", stroke: "#999999", width: 2},    // Dark nebula
       pos:{shape: "marker", fill: "#cccccc", stroke: "#cccccc", width: 1.5}   // Generic marker
     }
   },
   constellations: {
-    show: true,    // Show constellations 
-    names: true,   // Show constellation names 
-    namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig, 
-                         // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr 
-    nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8, 
+    show: true,    // Show constellations
+    names: true,   // Show constellation names
+    namesType: "desig",   // What kind of name to show (default 3 letter designations) all options: name, desig,
+                         // lat, en, ar, cn, cz, ee, fi, fr, de, gr, il, it, jp, kr, in, ir, ru, es, tr
+    nameStyle: { fill:"#cccc99", align: "center", baseline: "middle", opacity:0.8,
                  font: ["14px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif",  // Different fonts for brighter &
                         "12px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif",  // darker constellations
                         "11px 'Lucida Sans Unicode', 'DejaVu Sans', Helvetica, Arial, sans-serif"]},
-    lines: true,   // Show constellation lines 
+    lines: true,   // Show constellation lines
     lineStyle: { stroke: "#cccccc", width: 1.5, opacity: 0.6 },
-    bounds: false,  // Show constellation boundaries 
+    bounds: false,  // Show constellation boundaries
     boundStyle: { stroke: "#ccff00", width: 0.5, opacity: 0.8, dash: [4,4] }
   },
   mw: {
-    show: true,    // Show Milky Way as filled polygons 
+    show: true,    // Show Milky Way as filled polygons
     style: { fill: "#ffffff", opacity: "0.15" } // style for each MW-layer (5 on top of each other)
   },
   lines: {
-    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines 
+    graticule: { show: true, stroke: "#cccccc", width: 0.6, opacity: 0.8,      // Show graticule lines
 			// grid values: "outline", "center", or [lat,...] specific position
-      lon: {pos: [], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}, 
+      lon: {pos: [], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"},
 			// grid values: "outline", "center", or [lon,...] specific position
 		  lat: {pos: [], fill: "#eee", font: "10px 'Lucida Sans Unicode', Helvetica, Arial, sans-serif"}},
-    equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane 
-    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane 
-    galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane 
-    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane 
+    equatorial: { show: true, stroke: "#aaaaaa", width: 1.3, opacity: 0.7 },    // Show equatorial plane
+    ecliptic: { show: true, stroke: "#66cc66", width: 1.3, opacity: 0.7 },      // Show ecliptic plane
+    galactic: { show: false, stroke: "#cc6666", width: 1.3, opacity: 0.7 },     // Show galactic plane
+    supergalactic: { show: false, stroke: "#cc66cc", width: 1.3, opacity: 0.7 } // Show supergalactic plane
    //mars: { show: false, stroke:"#cc0000", width:1.3, opacity:.7 }
   }, // Background style
-  background: { 
-    fill: "#000000", 
-    opacity: 1, 
+  background: {
+    fill: "#000000",
+    opacity: 1,
     stroke: "#000000", // Outline
-    width: 1.5 
-  }, 
+    width: 1.5
+  },
   horizon: {  //Show horizon marker, if geo-position and date-time is set
-    show: false, 
+    show: false,
     stroke: "#cccccc", // Line
-    width: 1.0, 
+    width: 1.0,
     fill: "#000000", // Area below horizon
     opacity: 0.4
-  },  
+  },
   daylight: {  //Show approximate state of sky at selected time
     show: false
   },
   planets: {  //Show planet locations, if date-time is set
-    show: false, 
+    show: false,
     // 3-letter designations of all solar system objects that should be displayed
     which: ["sol", "mer", "ven", "ter", "lun", "mar", "jup", "sat", "ura", "nep", "cer", "plu"],
     // Symbols as unicode codepoints, letter abbreviations and colors to be displayed
@@ -161,12 +161,12 @@ var settings = {
     var prop, key, config = {}, res = {};
     if (Object.entries(globalConfig).length === 0) Object.assign(config, this);
     else Object.assign(config, globalConfig);
-    if (!cfg) return config; 
+    if (!cfg) return config;
     for (prop in config) {
-      if (!has(config, prop)) continue; 
-      //if (typeof(config[prop]) === 'function'); 
-      if (!has(cfg, prop) || cfg[prop] === null) { 
-        res[prop] = config[prop]; 
+      if (!has(config, prop)) continue;
+      //if (typeof(config[prop]) === 'function');
+      if (!has(cfg, prop) || cfg[prop] === null) {
+        res[prop] = config[prop];
       } else if (config[prop] === null || config[prop].constructor != Object ) {
         res[prop] = cfg[prop];
       } else {
@@ -176,7 +176,7 @@ var settings = {
             res[prop][key] = cfg[prop][key];
           } else {
             res[prop][key] = config[prop][key];
-          }            
+          }
         }
       }
     }
@@ -187,7 +187,7 @@ var settings = {
     var res = {};
     Object.assign(res, globalConfig);
     // Nothing works without these
-    res.stars.size = res.stars.size || 7;  
+    res.stars.size = res.stars.size || 7;
     res.stars.exponent = res.stars.exponent || -0.28;
     if (!res.center || res.center.length <= 0) res.center = [0,0,0];
     res.datapath = res.datapath || "";
@@ -202,7 +202,7 @@ var settings = {
       // names -> designation
       if (has(cfg.stars, "names")) res.stars.designation = cfg.stars.names;
       if (has(cfg.stars, "namelimit")) res.stars.designationLimit = cfg.stars.namelimit;
-      if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);    
+      if (has(cfg.stars, "namestyle")) Object.assign(res.stars.designationStyle, cfg.stars.namestyle);
       // proper -> propername
       if (has(cfg.stars, "proper")) res.stars.propername = cfg.stars.proper;
       if (has(cfg.stars, "propernamelimit")) res.stars.propernameLimit = cfg.stars.propernamelimit;
@@ -218,10 +218,10 @@ var settings = {
       //if (has(cfg.dsos, "names") && cfg.dsos.names === true) res.dsos.namesType = "name";
       if (has(cfg.dsos, "desig") && cfg.dsos.desig === true) res.dsos.namesType = "desig";
       if (has(cfg.dsos, "namelimit")) res.dsos.nameLimit = cfg.dsos.namelimit;
-      if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);    
+      if (has(cfg.dsos, "namestyle")) Object.assign(res.dsos.nameStyle, cfg.dsos.namestyle);
     }
     if (!res.dsos.namesType || res.dsos.namesType === "") res.dsos.namesType = "desig";
-    
+
     if (has(cfg, "constellations")) {
       // names, desig -> namesType
       if (has(cfg.constellations, "show") && cfg.constellations.show === true) res.constellations.names = true;
@@ -237,7 +237,7 @@ var settings = {
     if (!has(formats.constellations[res.culture].names, res.constellations.namesType)) res.constellations.namesType = "name";
 
     if (has(cfg, "planets")) {
-      if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);      
+      if (has(cfg.planets, "style")) Object.assign(res.planets.style, cfg.planets.symbolStyle);
     }
     if (!res.planets.symbolType || res.planets.symbolType === "") res.planets.symbolType = "symbol";
     if (!res.planets.namesType || res.planets.namesType === "") res.planets.namesType = "desig";
@@ -251,7 +251,7 @@ var settings = {
     res.constellations.lineStyle.stroke = arrayfy(res.constellations.lineStyle.stroke);
 
     Object.assign(globalConfig, res);
-    return res; 
+    return res;
   }
 };
 
@@ -266,12 +266,12 @@ function arrayfy(o) {
 Celestial.settings = function () { return settings; };
 
 //b-v color index to rgb color value scale
-var bvcolor = 
+var bvcolor =
   d3.scale.quantize().domain([3.347, -0.335]) //main sequence <= 1.7
     .range([ '#ff4700', '#ff4b00', '#ff4f00', '#ff5300', '#ff5600', '#ff5900', '#ff5b00', '#ff5d00', '#ff6000', '#ff6300', '#ff6500', '#ff6700', '#ff6900', '#ff6b00', '#ff6d00', '#ff7000', '#ff7300', '#ff7500', '#ff7800', '#ff7a00', '#ff7c00', '#ff7e00', '#ff8100', '#ff8300', '#ff8506', '#ff870a', '#ff8912', '#ff8b1a', '#ff8e21', '#ff9127', '#ff932c', '#ff9631', '#ff9836', '#ff9a3c', '#ff9d3f', '#ffa148', '#ffa34b', '#ffa54f', '#ffa753', '#ffa957', '#ffab5a', '#ffad5e', '#ffb165', '#ffb269', '#ffb46b', '#ffb872', '#ffb975', '#ffbb78', '#ffbe7e', '#ffc184', '#ffc489', '#ffc78f', '#ffc892', '#ffc994', '#ffcc99', '#ffce9f', '#ffd1a3', '#ffd3a8', '#ffd5ad', '#ffd7b1', '#ffd9b6', '#ffdbba', '#ffddbe', '#ffdfc2', '#ffe1c6', '#ffe3ca', '#ffe4ce', '#ffe8d5', '#ffe9d9', '#ffebdc', '#ffece0', '#ffefe6', '#fff0e9', '#fff2ec', '#fff4f2', '#fff5f5', '#fff6f8', '#fff9fd', '#fef9ff', '#f9f6ff', '#f6f4ff', '#f3f2ff', '#eff0ff', '#ebeeff', '#e9edff', '#e6ebff', '#e3e9ff', '#e0e7ff', '#dee6ff', '#dce5ff', '#d9e3ff', '#d7e2ff', '#d3e0ff', '#c9d9ff', '#bfd3ff', '#b7ceff', '#afc9ff', '#a9c5ff', '#a4c2ff', '#9fbfff', '#9bbcff']);
- 
+
 /* Default parameters for each supported projection
-     arg: constructor argument, if any 
+     arg: constructor argument, if any
      scale: scale parameter so that they all have ~equal width, normalized to 1024 pixels
      ratio: width/height ratio, 2.0 if none
      clip: projection clipped to 90 degrees from center, otherwise to antimeridian
@@ -279,7 +279,7 @@ var bvcolor =
 var projections = {
   "airy": {n:"Airy’s Minimum Error", arg:Math.PI/2, scale:360, ratio:1.0, clip:true},
   "aitoff": {n:"Aitoff", arg:null, scale:162},
-  "armadillo": {n:"Armadillo", arg:0, scale:250}, 
+  "armadillo": {n:"Armadillo", arg:0, scale:250},
   "august": {n:"August", arg:null, scale:94, ratio:1.4},
   "azimuthalEqualArea": {n:"Azimuthal Equal Area", arg:null, scale:340, ratio:1.0, clip:true},
   "azimuthalEquidistant": {n:"Azimuthal Equidistant", arg:null, scale:320, ratio:1.0, clip:true},
@@ -338,9 +338,9 @@ var projections = {
   "robinson": {n:"Robinson", arg:null, scale:160},
   "sinusoidal": {n:"Sinusoidal", arg:null, scale:160, ratio:2},
   "stereographic": {n:"Stereographic", arg:null, scale:500, ratio:1.0, clip:true},
-  "times": {n:"Times", arg:null, scale:210, ratio:1.4}, 
+  "times": {n:"Times", arg:null, scale:210, ratio:1.4},
   "twoPointEquidistant": {n:"Two-Point Equidistant", arg:Math.PI/2, scale:320, ratio:1.15, clip:true},
-  "vanDerGrinten": {n:"van Der Grinten", arg:null, scale:160, ratio:1.0}, 
+  "vanDerGrinten": {n:"van Der Grinten", arg:null, scale:160, ratio:1.0},
   "vanDerGrinten2": {n:"van Der Grinten II", arg:null, scale:160, ratio:1.0},
   "vanDerGrinten3": {n:"van Der Grinten III", arg:null, scale:160, ratio:1.0},
   "vanDerGrinten4": {n:"van Der Grinten IV", arg:null, scale:160, ratio:1.6},
@@ -358,7 +358,7 @@ var formats = {
     // "name":"","bayer":"","flam":"","var":"","gl":"","hd":"","c":"","desig":""
     "iau": {
       "designation": {
-        "desig": "Designation",     
+        "desig": "Designation",
         "bayer": "Bayer",
         "flam": "Flamsteed",
         "var": "Variable",
@@ -367,21 +367,21 @@ var formats = {
         "hip": "Hipparcos"},
       "propername": {
         "name": "IAU Name",
-        "ar": "Arabic", 
+        "ar": "Arabic",
         "zh": "Chinese",
         "en": "English",
-        "fi": "Finnish", 
-        "fr": "French", 
+        "fi": "Finnish",
+        "fr": "French",
         "de": "German",
-        "el": "Greek", 
+        "el": "Greek",
         //"he": "Hebrew",
-        "hi": "Hindi", 
-        "it": "Italian", 
-        "ja": "Japanese", 
-        "ko": "Korean", 
+        "hi": "Hindi",
+        "it": "Italian",
+        "ja": "Japanese",
+        "ko": "Korean",
         "la": "Latin",
-        "fa": "Persian", 
-        "ru": "Russian", 
+        "fa": "Persian",
+        "ru": "Russian",
         "es": "Spanish",
         "tr": "Turkish"}
     },
@@ -390,7 +390,7 @@ var formats = {
         "name": "Proper name",
         "en": "English",
         "pinyin": "Pinyin"},
-      "designation": { 
+      "designation": {
         "desig": "IAU Designation"}
     }
   },
@@ -399,23 +399,23 @@ var formats = {
       "names": {
         "desig": "Designation",
         "name": "IAU Name",
-        "ar": "Arabic", 
+        "ar": "Arabic",
         "zh": "Chinese",
-        "cz": "Czech", 
+        "cz": "Czech",
         "en": "English",
-        "ee": "Estonian", 
-        "fi": "Finnish", 
-        "fr": "French", 
+        "ee": "Estonian",
+        "fi": "Finnish",
+        "fr": "French",
         "de": "German",
-        "el": "Greek", 
+        "el": "Greek",
         "he": "Hebrew",
-        "hi": "Hindi", 
-        "it": "Italian", 
-        "ja": "Japanese", 
-        "ko": "Korean", 
+        "hi": "Hindi",
+        "it": "Italian",
+        "ja": "Japanese",
+        "ko": "Korean",
         "la": "Latin",
-        "fa": "Persian", 
-        "ru": "Russian", 
+        "fa": "Persian",
+        "ru": "Russian",
         "es": "Spanish",
         "tr": "Turkish"}
     },
@@ -424,7 +424,7 @@ var formats = {
         "name": "Proper name",
         "en": "English",
         "pinyin": "Pinyin"}
-    }             
+    }
   },
   "planets": {
     "iau": {
@@ -444,9 +444,9 @@ var formats = {
         "hi": "Hindi",
         "it": "Italian",
         "ja": "Japanese",
-        "ko": "Korean", 
+        "ko": "Korean",
         "la": "Latin",
-        "fa": "Persian", 
+        "fa": "Persian",
         "ru": "Russian",
         "es": "Spanish"}
     },
@@ -467,20 +467,21 @@ var formats = {
       "names": {
         "desig": "Designation",
         "name": "English",
-        "ar": "Arabic", 
+        "ar": "Arabic",
         "zh": "Chinese",
-        "fi": "Finnish", 
-        "fr": "French", 
+        "fi": "Finnish",
+        "fr": "French",
         "de": "German",
-        "el": "Greek", 
+        "el": "Greek",
         //"he": "Hebrew",
-        "hi": "Hindi", 
-        "it": "Italian", 
-        "ja": "Japanese", 
-        "ko": "Korean", 
+        "hi": "Hindi",
+        "it": "Italian",
+        "ja": "Japanese",
+        "ko": "Korean",
         "la": "Latin",
-        "fa": "Persian", 
-        "ru": "Russian", 
+        "fa": "Persian",
+        "ru": "Russian",
+        "pl": "Polish",
         "es": "Spanish",
         "tr": "Turkish"}
     },

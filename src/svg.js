@@ -579,8 +579,6 @@ Celestial.exportSVG = function(fname) {
 
                 var constellationsNamesSizeObjects = [];
                 constellationsNamesSizeObjects = constellationsNamesSizeObjects.concat(planetLabelObjects);
-                console.log('planetLabelObjects', planetLabelObjects);
-                console.log('constellationsNamesSizeObjects', constellationsNamesSizeObjects);
                 groups.constNames.selectAll(".constnames")
                     .data(conn.features.filter( function(d) {
                         return clip(d.geometry.coordinates) === 1;
@@ -622,9 +620,7 @@ Celestial.exportSVG = function(fname) {
                             constellationsNamesSizeObjects.push(sizesObj);
                             return constName(d);
                         }
-                        if (textCollision) {
-                            console.log('Removed constlellation label', sizesObj);
-                        }
+
                     } );
 
                 styles.constNames1 = {"fill": cfg.constellations.nameStyle.fill[0],
