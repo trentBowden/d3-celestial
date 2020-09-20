@@ -945,7 +945,7 @@ Celestial.exportSVG = function(fname) {
           if (error) throw error;
 
           var svgExp = d3.select("#d3-celestial-svg svg")
-              .attr("title", "D3-Celestial")
+              .attr("title", "PositivePrints ver 1.1")
               .attr("version", 1.1)
               .attr("encoding", "UTF-8")
               .attr("xmlns", "http://www.w3.org/2000/svg")
