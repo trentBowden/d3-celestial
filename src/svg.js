@@ -26,7 +26,7 @@ Celestial.exportSVG = function(fname) {
   }
   circle = d3.geo.circle().angle([179.95]).origin(center);
 
-  svg.attr("width", m.width).attr("height", m.width);
+  svg.attr("width", m.width).attr("height", m.height);
   // .attr("viewBox", " 0 0 " + (m.width) + " " + (m.height));
 
   var groupNames = ['background', 'milkyWay', 'milkyWayBg', 'gridLines', 'constBoundaries',

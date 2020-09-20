@@ -74,7 +74,7 @@ Celestial.display = function(config) {
 
   if (canvas[0].length === 0) canvas = d3.select(parentElement).append("canvas");
   //canvas.attr("width", width).attr("height", height);
-  canvas.style("width", px(canvaswidth)).style("height", px(canvasheight)).attr("width", canvaswidth * pixelRatio).attr("height", canvaswidth * pixelRatio);
+  canvas.style("width", px(canvaswidth)).style("height", px(canvasheight)).attr("width", canvaswidth * pixelRatio).attr("height", canvasheight * pixelRatio);
   var context = canvas.node().getContext("2d");
   context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
 
@@ -363,7 +363,7 @@ Celestial.display = function(config) {
     height = width/ratio;
     scale = projectionSetting.scale * width/1024;
     //canvas.attr("width", width).attr("height", height);
-    canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", width * pixelRatio);
+    canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
     zoom.scaleExtent([scale, scale * zoomextent]).scale(scale * zoomlevel);
     mapProjection.translate([canvaswidth/2, canvasheight/2]).scale(scale * zoomlevel);
     if (parent) parent.style.height = px(height);
@@ -412,7 +412,7 @@ Celestial.display = function(config) {
         ratio = rTween(_);
         height = width/ratio;
         //canvas.attr("width", width).attr("height", height);
-        canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height",  width * pixelRatio);
+        canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height",  height * pixelRatio);
         if (parent) parent.style.height = px(height);
         redraw();
       };
@@ -422,7 +422,7 @@ Celestial.display = function(config) {
       height = width / projectionSetting.ratio;
       scale = projectionSetting.scale * width/1024;
       //canvas.attr("width", width).attr("height", height);
-      canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", width * pixelRatio);
+      canvas.style("width", px(width)).style("height", px(height)).attr("width", width * pixelRatio).attr("height", height * pixelRatio);
       if (parent) parent.style.height = px(height);
       cfg.projection = config.projection;
       mapProjection = Celestial.projection(config.projection).rotate(rot).translate([canvaswidth/2, canvasheight/2]).scale(scale * zoomlevel);
