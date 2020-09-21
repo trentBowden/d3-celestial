@@ -358,6 +358,7 @@ Celestial.display = function(config) {
   }
 
   function resize(set) {
+    console.log('RESIZE');
     width = getWidth();
     if (cfg.width === width && !set) return;
     height = width/ratio;
