@@ -96,7 +96,7 @@ Celestial.display = function(config) {
 
   setClip(projectionSetting.clip);
 
-  d3.select(window).on('resize', resize);
+  // d3.select(window).on('resize', resize);
 
   if (cfg.controls === true && $("celestial-zoomin") === null) {
     d3.select(parentElement).append("input").attr("type", "button").attr("id", "celestial-zoomin").attr("value", "\u002b").on("click", function () { zoomBy(1.25); return false; });
