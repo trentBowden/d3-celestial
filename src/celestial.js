@@ -358,7 +358,6 @@ Celestial.display = function(config) {
   }
 
   function resize(set) {
-    console.log('RESIZE');
     width = getWidth();
     if (cfg.width === width && !set) return;
     height = width/ratio;
@@ -1076,13 +1075,12 @@ Celestial.display = function(config) {
   }
 
   function getWidth() {
-    return 618;
-    // var w = 0;
-    // if (isNumber(cfg.width) && cfg.width > 0) w = cfg.width;
-    // else if (parent) w = parent.getBoundingClientRect().width - margin[0] *2;
-    // else w = window.getBoundingClientRect().width - margin[0]*2;
-    // //if (isNumber(cfg.background.width)) w -= cfg.background.width;
-    // return w;
+    var w = 0;
+    if (isNumber(cfg.width) && cfg.width > 0) w = cfg.width;
+    else if (parent) w = parent.getBoundingClientRect().width - margin[0] *2;
+    else w = window.getBoundingClientRect().width - margin[0]*2;
+    //if (isNumber(cfg.background.width)) w -= cfg.background.width;
+    return w;
   }
 
   function getProjection(p) {
