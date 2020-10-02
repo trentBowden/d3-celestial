@@ -35,6 +35,7 @@ var settings = {
   stars: {
     show: true,    // Show stars
     limit: 6,      // Show only stars brighter than limit magnitude
+    limitForSVG: 6, // Separate limit for export
     colors: true,  // Show stars in spectral colors, if not use fill-style
     style: { fill: "#ffffff", opacity: 1 }, // Default style for stars
     designation: true, // Show star names (Bayer, Flamsteed, Variable star, Gliese or designation,
