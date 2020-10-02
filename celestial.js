@@ -4977,7 +4977,7 @@ Celestial.exportSVG = function(fname) {
 
         groups.stars.selectAll(".stars")
           .data(cons.features.filter( function(d) {
-            return d.properties.mag <= cfg.stars.limit;
+            return d.properties.mag <= cfg.stars.limitForSVG;
           }))
           .enter()
             // .append("path")
