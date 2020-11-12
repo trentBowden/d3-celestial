@@ -527,8 +527,7 @@ Celestial.display = function(config) {
 
     if (cfg.constellations.names) {
       //setTextStyle(cfg.constellations.nameStyle);
-      var canvas = document.getElementsByTagName('canvas');
-      var cr = canvas[0].offsetWidth / 2;
+      var cr = context.canvas.offsetHeight / 2;
 
       var constellationsNamesSizeObjects = [];
 
@@ -554,10 +553,10 @@ Celestial.display = function(config) {
             return Celestial.helpers.checkTextCollistion(constellationName, sizesObj, true);
           });
 
-          if (!textCollision && Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
+          // if (!textCollision && Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * constellationThreshold)) {
             constellationsNamesSizeObjects.push(sizesObj);
             context.fillText(constName(d), pt[0], pt[1]);
-          }
+          // }
         }
       });
     }
@@ -643,9 +642,9 @@ Celestial.display = function(config) {
             setTextStyle(cfg.planets.nameStyle);
             //context.direction = "ltr" || "rtl" ar il ir
             context.fillStyle = sym.text;
-            var canvas = document.getElementsByTagName('canvas');
 
-            var cr = canvas[0].offsetWidth / 2;
+            var cr = context.canvas.offsetHeight / 2;
+
             var pe = context.measureText(name);
 
               var sizesObj = {
@@ -691,14 +690,14 @@ Celestial.display = function(config) {
             } while (count < maxTries);
 
               var planetsThreshold = cfg.planets.nameStyle.threshold || 1;
-              if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
+              // if (Celestial.helpers.checkTextInsideCircle(sizesObj, cr, cr, cr * planetsThreshold)) {
                 planetLabelObjects.push(sizesObj);
 
                 var xPos = sizesObj.x;
                 var yPos = sizesObj.y;
 
                 context.fillText(name, xPos, yPos);
-              }
+              // }
           }
         }
       });
@@ -5708,7 +5707,7 @@ Celestial.exportSVG = function(fname) {
           if (error) throw error;
 
           var svgExp = d3.select("#d3-celestial-svg svg")
-              .attr("title", "PositivePrints ver 1.3")
+              .attr("title", "PositivePrints ver 1.4")
               .attr("version", 1.1)
               .attr("encoding", "UTF-8")
               .attr("xmlns", "http://www.w3.org/2000/svg")
