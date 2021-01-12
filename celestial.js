@@ -4764,8 +4764,12 @@ var Moon = {
 
 
 Celestial.exportSVG = function(fname) {
-  var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none"),
-      svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
+  var versionTitle = "PositivePrints ver 1.5";
+  d3.select('#d3-celestial-svg').remove();
+
+  var doc = d3.select("body").append("div").attr("id", "d3-celestial-svg").attr("style", "display: none");
+
+  var svg = d3.select("#d3-celestial-svg").append("svg"), //.attr("style", "display: none"),
       m = Celestial.metrics(),
       cfg = settings.set(),
       path = cfg.datapath,
@@ -5707,7 +5711,7 @@ Celestial.exportSVG = function(fname) {
           if (error) throw error;
 
           var svgExp = d3.select("#d3-celestial-svg svg")
-              .attr("title", "PositivePrints ver 1.4")
+              .attr("title", versionTitle)
               .attr("version", 1.1)
               .attr("encoding", "UTF-8")
               .attr("xmlns", "http://www.w3.org/2000/svg")
