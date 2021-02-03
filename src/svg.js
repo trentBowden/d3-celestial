@@ -1,5 +1,24 @@
 /* global d3, Celestial, projections, poles, getData, getPlanet, getMwbackground, getAngles, getWidth, getGridValues, has, isArray, halfπ, symbols, starnames, dsonames, bvcolor, settings, formats, transformDeg, euler, Round */
+Celestial.graticule = function(svg, path, trans) {
+    //d3.geo.circle graticule for coordinate spaces other than equatorial
+    //circles center [0º,90º] / angle 10..170º and  center [0..180º,0º] / angle 90º
 
+    var i;
+
+    if (!trans || trans == "equatorial") return;
+    for (i=10; i<=170; i+=10) {
+        svg.append("path")
+            .datum( d3.geo.circle().angle([i]).origin(poles[trans]) )
+            .attr("class", 'gridline')
+            .attr("d", path);
+    }
+    for (i=10; i<=180; i+=10) {
+        svg.append("path")
+            .datum( d3.geo.circle().angle([90]).origin(transformDeg([i,0], euler["inverse " + trans])) )
+            .attr("class", 'gridline')
+            .attr("d", path);
+    }
+};
 
 Celestial.exportSVG = function(fname) {
   var versionTitle = "PositivePrints ver 1.5";
@@ -51,7 +70,9 @@ Celestial.exportSVG = function(fname) {
       planets = svg.append('g'),
       foreground = svg.append('g');
 */
-  var graticule = d3.geo.graticule().minorStep([15,10]);
+  var graticule = d3.geo.graticule()
+      .majorStep([15, 360])
+      .minorStep([15,10]);
 
   var map = d3.geo.path().projection(projection);
 

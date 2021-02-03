@@ -79,7 +79,7 @@ Celestial.display = function(config) {
   var context = canvas.node().getContext("2d");
   context.setTransform(pixelRatio,0,0,pixelRatio,0,0);
 
-  var graticule = d3.geo.graticule().minorStep([15,10]);
+  var graticule = d3.geo.graticule().majorStep([15,360]).minorStep([15,10]);
 
   map = d3.geo.path().projection(mapProjection).context(context);
 
@@ -126,7 +126,7 @@ Celestial.display = function(config) {
     container.append("path").datum(circle).attr("class", "horizon");
     container.append("path").datum(daylight).attr("class", "daylight");
     //Celestial planes
-    if (cfg.transform === "equatorial") graticule.minorStep([15,10]);
+    if (cfg.transform === "equatorial") graticule.majorStep([15,360]).minorStep([15,10]);
     else  graticule.minorStep([10,10]);
     for (var key in cfg.lines) {
       if (!has(cfg.lines, key)) continue;
@@ -4761,7 +4761,26 @@ var Moon = {
   }
 
 };
+Celestial.graticule = function(svg, path, trans) {
+    //d3.geo.circle graticule for coordinate spaces other than equatorial
+    //circles center [0º,90º] / angle 10..170º and  center [0..180º,0º] / angle 90º
 
+    var i;
+
+    if (!trans || trans == "equatorial") return;
+    for (i=10; i<=170; i+=10) {
+        svg.append("path")
+            .datum( d3.geo.circle().angle([i]).origin(poles[trans]) )
+            .attr("class", 'gridline')
+            .attr("d", path);
+    }
+    for (i=10; i<=180; i+=10) {
+        svg.append("path")
+            .datum( d3.geo.circle().angle([90]).origin(transformDeg([i,0], euler["inverse " + trans])) )
+            .attr("class", 'gridline')
+            .attr("d", path);
+    }
+};
 
 Celestial.exportSVG = function(fname) {
   var versionTitle = "PositivePrints ver 1.5";
@@ -4813,7 +4832,9 @@ Celestial.exportSVG = function(fname) {
       planets = svg.append('g'),
       foreground = svg.append('g');
 */
-  var graticule = d3.geo.graticule().minorStep([15,10]);
+  var graticule = d3.geo.graticule()
+      .majorStep([15, 360])
+      .minorStep([15,10]);
 
   var map = d3.geo.path().projection(projection);
 
