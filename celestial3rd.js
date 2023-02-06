@@ -4792,7 +4792,8 @@ Celestial3rd.graticule = function(svg, path, trans) {
 
 Celestial3rd.exportSVG = function(fname) {
   var versionTitle = "PositivePrints ver 1.5";
-  d3.select('#d3-celestial-svg').remove();
+  d3.select("#"+Celestial3rd.iId+"d3-celestial-svg").remove();
+
 
   var doc = d3.select("body").append("div").attr("id", Celestial3rd.iId+"d3-celestial-svg").attr("style", "display: none");
 
@@ -5219,7 +5220,7 @@ Celestial3rd.exportSVG = function(fname) {
 
       //Planet names
       if (cfg.planets.names) {
-        var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
+        var cr = parseInt(d3.select("#"+Celestial3rd.iId+"d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
 
         var planets = groups.planetNames.selectAll(".planetnames");
 
@@ -5370,7 +5371,7 @@ Celestial3rd.exportSVG = function(fname) {
                 if (error) callback(error);
 
                 var conn = getData(json, cfg.transform);
-                var cr = parseInt(d3.select("#d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
+                var cr = parseInt(d3.select("#"+Celestial3rd.iId+"d3-celestial-svg svg").style('width').replace('px', ''), 10) / 2;
 
                 var constellationsNamesSizeObjects = [];
                 constellationsNamesSizeObjects = constellationsNamesSizeObjects.concat(planetLabelObjects);
