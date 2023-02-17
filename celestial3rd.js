@@ -3165,7 +3165,7 @@ function form(cfg) {
 
   function get(id) {
     var a = id.split("-");
-    a[0] = a[0].replace(Celestial3nd.iId, '');
+    a[0] = a[0].replace(Celestial3rd.iId, '');
     switch (a.length) {
       case 1: return config[a[0]]; 
       case 2: return config[a[0]][a[1]];
