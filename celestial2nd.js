@@ -622,7 +622,7 @@ Celestial2nd.display = function(config) {
             setTextStyle(cfg.planets.symbolStyle);
             context.fillStyle = sym.fill;
             context.fillText(sym.letter, pt[0], pt[1]);
-          } else if (id === "lun" && !sym.showAsPlanet) {
+          } else if (id === "lun") {
             if (has(sym, "size") && isNumber(sym.size)) r = sym.size * adapt;
             context.fillStyle = sym.fill;
             Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
@@ -5170,21 +5170,7 @@ Celestial2nd.exportSVG = function(fname) {
       }
       // Special case for Moon crescent
       if (jlun.features.length > 0) {
-        if (cfg.planets.symbolType === "disk") {
-          groups.planets.selectAll(".moon")
-              .data(jlun.features)
-              .enter().append("path")
-              .attr("transform", function (d) {
-                return point(d.geometry.coordinates);
-              })
-              .attr("d", function (d) {
-                var r = (has(cfg.planets.symbols[d.id], "size")) ? (cfg.planets.symbols[d.id].size - 1) * adapt : null;
-                return planetSymbol(d.properties, r);
-              })
-              .attr("class", function (d) {
-                return "planets " + d.id;
-              });
-        } else if (cfg.planets.symbolType === "letter") {
+        if (cfg.planets.symbolType === "letter") {
           groups.planets.selectAll(".moon")
            .data(jlun.features)
            .enter().append("text")
