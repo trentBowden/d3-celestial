@@ -623,8 +623,10 @@ Celestial.display = function(config) {
             context.fillText(sym.letter, pt[0], pt[1]);
           } else if (id === "lun") {
             if (has(sym, "size") && isNumber(sym.size)) r = sym.size * adapt;
-            context.fillStyle = sym.fill;
-            Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context);
+            if (sym.enabled) {
+              context.fillStyle = sym.fill;
+              Canvas.symbol().type("crescent").size(r*r).age(p.ephemeris.age).position(pt)(context, sym);
+            }
           } else if (cfg.planets.symbolType === "disk") {
             r = has(sym, "size") && isNumber(sym.size) ? sym.size * adapt : planetSize(p.ephemeris);
             context.fillStyle = sym.fill;
@@ -637,7 +639,7 @@ Celestial.display = function(config) {
             context.fillText(sym[cfg.planets.symbolType], pt[0], pt[1]);
           }
           //name
-          if (cfg.planets.names) {
+          if (cfg.planets.names && (p.desig !== 'Lun' || (p.desig === 'Lun' && sym.enabled))) {
             var name = p[cfg.planets.namesType];
             setTextStyle(cfg.planets.nameStyle);
             //context.direction = "ltr" || "rtl" ar il ir
@@ -2205,8 +2207,8 @@ Canvas.symbol = function () {
       padding = d3.functor([2,2]),
       pos;
 
-  function canvas_symbol(context) {
-    draw_symbol[type()](context);
+  function canvas_symbol(context, sym) {
+    draw_symbol[type()](context, sym);
   }
 
   var draw_symbol = {
@@ -2295,7 +2297,7 @@ Canvas.symbol = function () {
       ctx.closePath();
       return r;
     },
-    "crescent": function(ctx) {
+    "crescent": function(ctx, sym) {
       var s = Math.sqrt(size()),
           r = s/2,
           ag = age(),
@@ -2304,7 +2306,7 @@ Canvas.symbol = function () {
           dir = ag > Math.PI,
           termdir = Math.abs(ph) > 0.5 ? dir : !dir,
           moonFill = ctx.fillStyle,
-          darkFill = ph < 0.157 ? "#669" : "#557";
+          darkFill = sym.background;
       ctx.save();
       ctx.fillStyle = darkFill;
       ctx.beginPath();
@@ -5161,7 +5163,7 @@ Celestial.exportSVG = function(fname) {
          .attr({dy: ".35em"});
       }
       // Special case for Moon crescent
-      if (jlun.features.length > 0) {
+      if (jlun.features.length > 0 && cfg.planets.symbols.lun.enabled) {
         if (cfg.planets.symbolType === "letter") {
           groups.planets.selectAll(".moon")
            .data(jlun.features)
@@ -5314,7 +5316,8 @@ Celestial.exportSVG = function(fname) {
           styles['planetNames' + d.id] = svgTextStyle(cfg.planets.nameStyle, cfg.planets.symbols[d.id].text);
         });
 
-        if (jlun.features.length > 0) {
+
+        if (jlun.features.length > 0 && cfg.planets.symbols.lun.enabled) {
           var moons = groups.planetNames.selectAll(".moonname");
           moons.data(jlun.features)
            .enter().append("text")
