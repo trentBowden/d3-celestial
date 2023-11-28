@@ -546,7 +546,7 @@ var depends = {
 
 // De/activate fields depending on selection of dependencies
 function enable(source) {
-  var fld = source.id, off;
+  var fld = (source ? source : {}).id, off;
   
   switch (fld) {
     case "stars-show": 
