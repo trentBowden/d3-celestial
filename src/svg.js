@@ -20,7 +20,12 @@ Celestial.graticule = function(svg, path, trans) {
     }
 };
 
-Celestial.exportSVG = function(fname) {
+// Export SVG
+// @param {string} fname - Filename
+// @param {boolean} downloadFile - Whether or not to download the file.
+// @returns Blob of SVG.
+Celestial.exportSVG = function(fname, downloadFile) {
+  console.log("Exporting!");
   var versionTitle = "PositivePrints ver 1.5";
   d3.select('#d3-celestial-svg').remove();
 
@@ -1013,13 +1018,21 @@ Celestial.exportSVG = function(fname) {
        .attr(":inkscape:window-maximized", "1");*/
       var blob = new Blob([svg.node().outerHTML], {type:"image/svg+xml;charset=utf-8"});
 
-      var a = d3.select("body").append("a").node();
-      a.download = fname || "d3-celestial.svg";
-      a.rel = "noopener";
-      a.href = URL.createObjectURL(blob);
-      a.click();
-      d3.select(a).remove();
-      d3.select("#d3-celestial-svg").remove();
+      if (downloadFile) {
+        console.log("downloading file");
+        var a = d3.select("body").append("a").node();
+        a.download = fname || "d3-celestial.svg";
+        a.rel = "noopener";
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        d3.select(a).remove();
+        d3.select("#d3-celestial-svg").remove();
+      } else {
+        console.log("Not downloading file");
+      }
+
+      console.log("Successfully returning blob");
+      return blob;
     });
   }
 

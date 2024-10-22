@@ -84,6 +84,7 @@ target.build = function() {
   echo(out.error || "OK");
   
   fs.writeFileSync(filename + '.min.js', copy + out.code);
+  echo(filename + '.min.js');
   /*var read = ug.parse(fs.readFileSync(filename + '.js', "utf8"));
   read.figure_out_scope();
 
