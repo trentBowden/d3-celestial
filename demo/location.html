@@ -13,13 +13,6 @@
     <link rel="stylesheet" href="../celestial.css" />
   </head>
   <body>
-    <!-- <input
-      id="downloadMe"
-      type="button"
-      value="Straight up download the CSV"
-      onclick="Celestial.exportSVG('filename', true);"
-    /> -->
-
     <h1>Star Map</h1>
 
     <div
@@ -32,10 +25,18 @@
         background-color: blue;
       "
     >
-      <!-- Placeholder for the SVG overlay -->
-      <img id="portrait-svg" style="position: absolute; top: 0; left: 0" />
-      <div style="overflow: hidden"><div id="celestial-map"></div></div>
-      <!-- Editable text -->
+      <!-- Placeholder for the celestial map -->
+      <div
+        id="celestial-map"
+        style="
+          position: absolute;
+          top: 10%;
+          left: 50%;
+          transform: translateX(-50%);
+        "
+      ></div>
+
+      <!-- Editable text below the celestial map -->
       <div
         id="editable-text"
         contenteditable="true"
@@ -53,10 +54,8 @@
     </div>
 
     <button id="generate-svg"><h3>Generate SVG</h3></button>
-    <button id="load-map"><h3>Load Map</h3></button>
 
     <h1>Celestial Config</h1>
-
     <div id="celestial-form"></div>
 
     <script type="text/javascript">
