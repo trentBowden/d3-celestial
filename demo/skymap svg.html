@@ -845,12 +845,75 @@
           .getElementById("updateButton")
           .addEventListener("click", async () => {
             const location = document.getElementById("locationInput").value;
-            const date = document.getElementById("dateInput").value;
+            const dateInput = document.getElementById("dateInput").value;
             const message = document.getElementById("messageInput").value;
 
-            await updateLocation(location);
-            document.getElementById("mapDate").textContent = formatDate(date);
-            document.getElementById("mapMessage").textContent = message;
+            try {
+              // Parse the date input
+              const date = new Date(dateInput);
+
+              // Validate the date
+              if (isNaN(date.getTime())) {
+                throw new Error("Invalid date");
+              }
+
+              // Get user's timezone offset in minutes
+              const timezoneOffset = date.getTimezoneOffset();
+
+              // If location is provided, update both location and date
+              if (location) {
+                const response = await fetch(
+                  `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+                    location
+                  )}&format=json`
+                );
+                const data = await response.json();
+
+                if (data.length > 0) {
+                  const { lat, lon } = data[0];
+
+                  // Update the map with both new location and date
+                  Celestial.skyview({
+                    date: date,
+                    location: [parseFloat(lat), parseFloat(lon)],
+                    timezone: -timezoneOffset, // Note: skyview expects opposite sign of getTimezoneOffset
+                  });
+
+                  // Update coordinates display
+                  document.getElementById(
+                    "mapCoordinates"
+                  ).textContent = `${Math.abs(lat).toFixed(4)}° ${
+                    lat >= 0 ? "N" : "S"
+                  }, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
+                } else {
+                  throw new Error("Location not found");
+                }
+              } else {
+                // If no location provided, just update the date
+                Celestial.skyview({
+                  date: date,
+                  timezone: -timezoneOffset,
+                });
+              }
+
+              // Update the displayed date
+              document.getElementById("mapDate").textContent =
+                date.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                });
+
+              // Update message if provided
+              document.getElementById("mapMessage").textContent = message;
+            } catch (error) {
+              console.error("Error updating map:", error);
+              alert(
+                error.message === "Location not found"
+                  ? "Could not find the specified location. Please try again with a different location."
+                  : "There was an error updating the map. Please check your inputs and try again."
+              );
+            }
           });
 
         document
