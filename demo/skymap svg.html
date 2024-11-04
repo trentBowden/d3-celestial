@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Night Sky Map Creator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script type="text/javascript" src="../celestial.js"></script>
+    <style>
+      #celestial-map {
+        width: 100%;
+        min-height: 200px; /* Minimum height to prevent too small renders */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        line-height: 1.5;
+        padding: 2rem;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        background: white;
+        padding: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+
+      .poster {
+        width: 100%;
+        max-width: 100%;
+        background-color: #15192a;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        aspect-ratio: 3/4;
+        padding: 1rem;
+        position: relative;
+        min-height: 400px;
+        margin: 0 auto;
+      }
+
+      .poster::before {
+        content: "";
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        border: 3px solid rgba(255, 255, 255, 0.2); /* Default state, will be updated via JS */
+        pointer-events: none;
+        transition: border-color 0.3s ease;
+      }
+
+      #celestial-map {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        margin: 0 auto;
+      }
+
+      #celestial-map::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 100%;
+        pointer-events: none;
+        transition: border-color 0.3s ease;
+        border: 3px solid transparent; /* Start transparent, will be updated via JS */
+      }
+
+      #celestial-map canvas {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .map-details {
+        flex: 0 0 auto;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        margin-top: auto;
+      }
+
+      .map-details {
+        flex: 0 0 auto; /* Prevent flex grow/shrink */
+        color: white;
+        padding: 1rem;
+        text-align: center;
+        /* Remove flex properties that might interfere */
+        display: block;
+        margin-top: auto; /* Push to bottom if needed */
+      }
+
+      .map-title,
+      .map-date,
+      .map-coordinates,
+      .map-message {
+        transition: color 0.3s ease;
+      }
+
+      .map-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .map-date,
+      .map-coordinates {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .map-message {
+        font-style: italic;
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      /* Rest of the styles remain the same */
+      .controls {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .control-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .style-options {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .style-button {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        position: relative;
+        background: transparent;
+      }
+
+      .style-button:hover {
+        transform: scale(1.1);
+      }
+
+      .style-button.selected {
+        border: 2px solid #3b82f6;
+      }
+
+      /* Style 1: Filled circle */
+      .style-1 {
+        background-color: currentColor;
+      }
+
+      /* Style 2: Filled circle with white center */
+      .style-2 {
+        background-color: currentColor;
+      }
+
+      .style-2::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%; /* Smaller inner circle */
+        height: 60%;
+        border-radius: 50%;
+        background-color: white;
+      }
+
+      /* Style 3: White circle with filled center */
+      .style-3 {
+        background-color: white;
+      }
+
+      .style-3::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        background-color: currentColor;
+      }
+
+      /* Style 4: Empty circles */
+      .style-4 {
+        border: 2px solid currentColor;
+      }
+
+      .style-4::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+      }
+
+      .color-options {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .color-button {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 9999px;
+        border: 2px solid #e5e7eb;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .color-button:hover {
+        transform: scale(1.1);
+      }
+
+      .color-button.selected {
+        border: 2px solid #3b82f6;
+      }
+
+      input[type="text"],
+      input[type="date"],
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 5rem;
+      }
+
+      .button {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .button-primary {
+        background-color: #3b82f6;
+        color: white;
+      }
+
+      .button-primary:hover {
+        background-color: #2563eb;
+      }
+
+      .button-secondary {
+        background-color: #10b981;
+        color: white;
+      }
+
+      .button-secondary:hover {
+        background-color: #059669;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .button-group .button {
+        flex: 1;
+      }
+
+      @media (min-width: 768px) {
+        body {
+          padding: 2rem;
+        }
+
+        .container {
+          flex-direction: row;
+          padding: 2rem;
+        }
+
+        .poster {
+          flex: 1;
+          padding: 2rem;
+          min-height: 600px;
+          max-width: 450px;
+        }
+
+        .controls {
+          flex: 1;
+        }
+      }
+
+      @media (max-width: 767px) {
+        body {
+          padding: 0.5rem;
+        }
+
+        .poster {
+          max-width: 100%;
+          padding: 1rem;
+        }
+
+        #celestial-map {
+          max-width: 90%;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .button {
+          width: 100%;
+        }
+      }
+
+      /* Add style for the new SVG download button */
+      .button-tertiary {
+        background-color: #8b5cf6;
+        color: white;
+      }
+
+      .button-tertiary:hover {
+        background-color: #7c3aed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="poster" id="poster">
+        <div id="celestial-map"></div>
+        <div class="map-details">
+          <div class="map-title">THE NIGHT SKY</div>
+          <div class="map-date" id="mapDate">January 1, 2024</div>
+          <div class="map-coordinates" id="mapCoordinates">
+            37.7648° N, 122.4500° W
+          </div>
+          <div class="map-message" id="mapMessage"></div>
+        </div>
+      </div>
+
+      <!-- Rest of the HTML remains the same -->
+      <div class="controls">
+        <h1 class="section-title">Create Your Star Map</h1>
+        <p>Customize your map's appearance, then download it as an image!</p>
+
+        <div class="control-section">
+          <label>Background Color</label>
+          <div class="color-options" id="colorOptions">
+            <button
+              class="color-button selected"
+              style="background-color: #15192a"
+              data-color="#15192a"
+            ></button>
+            <button
+              class="color-button"
+              style="background-color: #000000"
+              data-color="#000000"
+            ></button>
+            <button
+              class="color-button"
+              style="background-color: #1a472a"
+              data-color="#1a472a"
+            ></button>
+            <button
+              class="color-button"
+              style="background-color: #2c3440"
+              data-color="#2c3440"
+            ></button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <label>Map Style</label>
+          <div class="style-options" id="styleOptions">
+            <button
+              class="style-button style-1 selected"
+              data-style="1"
+            ></button>
+            <button class="style-button style-2" data-style="2"></button>
+            <button class="style-button style-3" data-style="3"></button>
+            <button class="style-button style-4" data-style="4"></button>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <label>Location</label>
+          <input
+            type="text"
+            id="locationInput"
+            placeholder="Enter a location..."
+            value="San Francisco, CA"
+          />
+        </div>
+
+        <div class="control-section">
+          <label>Date</label>
+          <input type="date" id="dateInput" value="2024-01-01" />
+        </div>
+
+        <div class="control-section">
+          <label>Personal Message (optional)</label>
+          <textarea
+            id="messageInput"
+            placeholder="Add a personal message..."
+          ></textarea>
+        </div>
+
+        <div class="button-group">
+          <button class="button button-primary" id="updateButton">
+            Update Map
+          </button>
+          <button class="button button-secondary" id="downloadButton">
+            Download
+          </button>
+          <button class="button button-tertiary" id="downloadSvgButton">
+            Download SVG
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to calculate map dimensions based on container and device pixel ratio
+      function getMapDimensions() {
+        const container = document.getElementById("celestial-map");
+        const posterElement = document.querySelector(".poster");
+        const posterRect = posterElement.getBoundingClientRect();
+
+        // Calculate the available space within the poster
+        const availableWidth = posterRect.width - 64;
+        const availableHeight = posterRect.height * 0.6;
+
+        // Base size on the smaller dimension to maintain aspect ratio
+        const dimension = Math.min(availableWidth, availableHeight);
+
+        // Ensure minimum and maximum sizes
+        const minDimension = 300;
+        const maxDimension = 800;
+        const clampedDimension = Math.min(
+          Math.max(dimension, minDimension),
+          maxDimension
+        );
+
+        // Get the device pixel ratio (defaults to 1 if not available)
+        const devicePixelRatio = window.devicePixelRatio || 1;
+
+        // For high-DPI displays (like Retina), adjust the width
+        const adjustedDimension =
+          devicePixelRatio > 1.5 ? clampedDimension / 2 : clampedDimension;
+
+        return {
+          width: adjustedDimension,
+          height: adjustedDimension,
+          // Store the original dimension for star sizing
+          originalDimension: clampedDimension,
+        };
+      }
+
+      function getCircleSize() {
+        const container = document.getElementById("celestial-map");
+        const containerRect = container.getBoundingClientRect();
+        const poster = document.querySelector(".poster");
+        const posterRect = poster.getBoundingClientRect();
+
+        // Check if we're in the mobile layout (settings below poster)
+        const isMobileLayout = window.innerWidth <= 768;
+
+        if (isMobileLayout) {
+          // For mobile layout, base size on poster width
+          return Math.min(posterRect.width, containerRect.height) * 0.85;
+        } else {
+          // For desktop layout, use container dimensions
+          return Math.min(containerRect.width, containerRect.height) * 0.94;
+        }
+      }
+
+      // Function to get base configuration for the celestial map
+      function getBaseConfig(mapBackground, scaleFactor = 1) {
+        const mapBackgroundIsWhite = mapBackground === "#FFFFFF";
+        const starColor = mapBackgroundIsWhite ? "#000000" : "#FFFFFF";
+        const milkyWayColor = mapBackgroundIsWhite ? "#000000" : "#FFFFFF";
+        const constellationColor = mapBackgroundIsWhite ? "#8e8e8e" : "#cccccc";
+
+        return {
+          background: {
+            fill: mapBackground,
+            stroke: mapBackground,
+            opacity: 1,
+            width: 4,
+          },
+          stars: {
+            show: true,
+            limit: 6,
+            colors: true,
+            style: { fill: starColor, opacity: 1 },
+            names: false,
+            proper: false,
+            desig: false,
+            namelimit: 2.5,
+            size: 4 * scaleFactor,
+            data: "stars.6.json",
+          },
+          datapath: "../data/",
+          projection: "orthographic",
+          dsos: { show: false },
+          mw: { style: { fill: milkyWayColor, opacity: "0.05" } },
+          controls: false,
+          interactive: false,
+          constellations: {
+            show: false,
+            names: false,
+            desig: false,
+            lines: true,
+            linestyle: {
+              stroke: constellationColor,
+              width: 1 * scaleFactor,
+              opacity: 0.6,
+            },
+            bounds: false,
+          },
+          lines: {
+            graticule: { show: false },
+            equatorial: { show: false },
+            ecliptic: { show: false },
+            galactic: { show: false },
+            supergalactic: { show: false },
+          },
+        };
+      }
+
+      // Initialize the star map
+      function initializeMap(
+        backgroundColor = "#15192a",
+        mapStyle = "1",
+        animate = false
+      ) {
+        // Calculate the size using our getCircleSize function
+        const size = getCircleSize();
+        let mapBackground, posterBackground, borderColor;
+
+        switch (mapStyle) {
+          case "1": // Everything colored
+            mapBackground = backgroundColor;
+            posterBackground = backgroundColor;
+            borderColor = "rgba(255, 255, 255, 0.8)";
+            break;
+          case "2": // Poster colored, map white
+            mapBackground = "#FFFFFF";
+            posterBackground = backgroundColor;
+            borderColor = "rgba(255, 255, 255, 0.8)";
+            break;
+          case "3": // Poster white, map colored
+            mapBackground = backgroundColor;
+            posterBackground = "#FFFFFF";
+            const hex1 = backgroundColor.replace("#", "");
+            const r1 = parseInt(hex1.substring(0, 2), 16);
+            const g1 = parseInt(hex1.substring(2, 4), 16);
+            const b1 = parseInt(hex1.substring(4, 6), 16);
+            borderColor = `rgba(${r1}, ${g1}, ${b1}, 0.8)`;
+            break;
+          case "4": // Everything white
+            mapBackground = "#FFFFFF";
+            posterBackground = "#FFFFFF";
+            const hex2 = backgroundColor.replace("#", "");
+            const r2 = parseInt(hex2.substring(0, 2), 16);
+            const g2 = parseInt(hex2.substring(2, 4), 16);
+            const b2 = parseInt(hex2.substring(4, 6), 16);
+            borderColor = `rgba(${r2}, ${g2}, ${b2}, 0.8)`;
+            break;
+        }
+
+        // Update poster styles
+        updatePosterStyles(posterBackground, borderColor, backgroundColor);
+
+        // Get responsive dimensions
+        const { width, height } = getMapDimensions();
+
+        // If animating, add transition class
+        const container = document.getElementById("celestial-map");
+        if (animate) {
+          container.classList.add("transitioning");
+        }
+
+        // Get base configuration
+        const config = getBaseConfig(mapBackground);
+        config.width = width;
+        config.height = height;
+
+        // Check if map is already initialized
+        if (Celestial.initialized) {
+          // Update existing map
+          Celestial.apply(config);
+        } else {
+          // Initial display
+          Celestial.display(config);
+        }
+
+        // Remove transition class after animation completes
+        if (animate) {
+          setTimeout(() => {
+            container.classList.remove("transitioning");
+          }, 300);
+        }
+      }
+      function updatePosterStyles(
+        posterBackground,
+        borderColor,
+        backgroundColor
+      ) {
+        const poster = document.querySelector(".poster");
+        const mapDetails = document.querySelector(".map-details");
+
+        poster.style.backgroundColor = posterBackground;
+
+        // Update text colors
+        const isWhiteBackground = posterBackground === "#FFFFFF";
+        const textColor = isWhiteBackground ? backgroundColor : "white";
+
+        mapDetails.style.color = textColor;
+        document
+          .querySelectorAll(
+            ".map-title, .map-date, .map-coordinates, .map-message"
+          )
+          .forEach((element) => {
+            element.style.color = textColor;
+            if (
+              element.classList.contains("map-date") ||
+              element.classList.contains("map-coordinates") ||
+              element.classList.contains("map-message")
+            ) {
+              element.style.opacity = "0.9";
+            }
+          });
+
+        // Update border styles
+        let styleElement = document.getElementById("dynamic-borders");
+        if (!styleElement) {
+          styleElement = document.createElement("style");
+          styleElement.id = "dynamic-borders";
+          document.head.appendChild(styleElement);
+        }
+
+        const size = getCircleSize();
+        styleElement.textContent = `
+    #celestial-map {
+      position: relative;
+      z-index: 1;
+    }
+    #celestial-map > div {
+      position: relative;
+      z-index: 1;
+    }
+    #celestial-map::after {
+      border: 3px solid ${borderColor} !important;
+      width: ${size}px !important;
+      height: ${size}px !important;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .poster::before {
+      border-color: ${borderColor} !important;
+    }
+  `;
+      }
+
+      // Rest of the JavaScript remains the same
+      async function updateLocation(locationString) {
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+              locationString
+            )}&format=json`
+          );
+          const data = await response.json();
+
+          if (data.length > 0) {
+            const { lat, lon } = data[0];
+            document.getElementById("mapCoordinates").textContent = `${Math.abs(
+              lat
+            ).toFixed(4)}° ${lat >= 0 ? "N" : "S"}, ${Math.abs(lon).toFixed(
+              4
+            )}° ${lon >= 0 ? "E" : "W"}`;
+            Celestial.skyview({ location: [parseFloat(lat), parseFloat(lon)] });
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Error updating location:", error);
+          return false;
+        }
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Log device information for debugging
+        console.log(`Device Pixel Ratio: ${window.devicePixelRatio}`);
+        console.log(
+          `Screen Resolution: ${window.screen.width} x ${window.screen.height}`
+        );
+
+        // Add required styles dynamically
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `
+    #celestial-map {
+      width: 100%;
+      min-height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease-in-out;
+    }
+    
+    #celestial-map.transitioning canvas {
+      transition: all 0.3s ease-in-out;
+    }
+    
+    .poster {
+      transition: background-color 0.3s ease-in-out;
+    }
+    
+    /* Smooth transitions for map container */
+    #celestial-map > div {
+      transition: all 0.3s ease-in-out;
+    }
+  `;
+        document.head.appendChild(styleSheet);
+
+        initializeMap();
+
+        // Color selection handler
+        const colorOptions = document.getElementById("colorOptions");
+        const styleOptions = document.getElementById("styleOptions");
+        let currentColor = "#15192a";
+        let currentStyle = "1";
+
+        // Add resize handler with debounce
+        let resizeTimeout;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            initializeMap(currentColor, currentStyle, true); // Animate
+          }, 250); // Debounce resize events
+        });
+
+        window.addEventListener("orientationchange", () => {
+          setTimeout(() => {
+            initializeMap(currentColor, currentStyle, true);
+          }, 250);
+        });
+
+        colorOptions.addEventListener("click", (e) => {
+          if (e.target.classList.contains("color-button")) {
+            document
+              .querySelectorAll(".color-button")
+              .forEach((btn) => btn.classList.remove("selected"));
+            e.target.classList.add("selected");
+            currentColor = e.target.dataset.color;
+
+            // Update style buttons color
+            styleOptions
+              .querySelectorAll(".style-button")
+              .forEach((btn) => (btn.style.color = currentColor));
+
+            initializeMap(currentColor, currentStyle, true);
+          }
+        });
+
+        // Style selection handler
+        styleOptions.addEventListener("click", (e) => {
+          if (e.target.classList.contains("style-button")) {
+            document
+              .querySelectorAll(".style-button")
+              .forEach((btn) => btn.classList.remove("selected"));
+            e.target.classList.add("selected");
+            currentStyle = e.target.dataset.style;
+            initializeMap(currentColor, currentStyle, true);
+          }
+        });
+
+        // Initialize style buttons color
+        styleOptions
+          .querySelectorAll(".style-button")
+          .forEach((btn) => (btn.style.color = currentColor));
+
+        document
+          .getElementById("updateButton")
+          .addEventListener("click", async () => {
+            const location = document.getElementById("locationInput").value;
+            const date = document.getElementById("dateInput").value;
+            const message = document.getElementById("messageInput").value;
+
+            await updateLocation(location);
+            document.getElementById("mapDate").textContent = formatDate(date);
+            document.getElementById("mapMessage").textContent = message;
+          });
+
+        document
+          .getElementById("downloadButton")
+          .addEventListener("click", () => {
+            html2canvas(document.getElementById("poster")).then((canvas) => {
+              const link = document.createElement("a");
+              link.download = "star-map.png";
+              link.href = canvas.toDataURL("image/png");
+              link.click();
+            });
+          });
+
+        document
+          .getElementById("downloadSvgButton")
+          .addEventListener("click", async () => {
+            try {
+              // A3 dimensions in pixels at 300 DPI
+              const A3_WIDTH = 3508;
+              const A3_HEIGHT = 4961;
+
+              // Get current map container dimensions for reference
+              const mapContainer = document.getElementById("celestial-map");
+              const currentWidth = mapContainer.querySelector("canvas").width;
+              const scaleFactor = 3;
+
+              // Get current style settings
+              const currentColor = document.querySelector(
+                ".color-button.selected"
+              ).dataset.color;
+              const currentStyle = document.querySelector(
+                ".style-button.selected"
+              ).dataset.style;
+
+              // Determine colors based on selected style
+              let mapBackground, posterBackground, borderColor, textColor;
+              switch (currentStyle) {
+                case "1": // Everything same color
+                  mapBackground = currentColor;
+                  posterBackground = currentColor;
+                  borderColor = "rgba(255, 255, 255, 0.8)";
+                  textColor = "#FFFFFF";
+                  break;
+                case "2": // Poster colored, map white
+                  mapBackground = "#FFFFFF";
+                  posterBackground = currentColor;
+                  borderColor = "rgba(255, 255, 255, 0.8)"; // Changed from transparent
+                  textColor = "#FFFFFF";
+                  break;
+                case "3": // Poster white, map colored
+                  mapBackground = currentColor;
+                  posterBackground = "#FFFFFF";
+                  // Convert hex background color to rgba for border
+                  const hex1 = currentColor.replace("#", "");
+                  const r1 = parseInt(hex1.substring(0, 2), 16);
+                  const g1 = parseInt(hex1.substring(2, 4), 16);
+                  const b1 = parseInt(hex1.substring(4, 6), 16);
+                  borderColor = `rgba(${r1}, ${g1}, ${b1}, 0.8)`; // Changed from transparent
+                  textColor = currentColor;
+                  break;
+                case "4": // Everything white
+                  mapBackground = "#FFFFFF";
+                  posterBackground = "#FFFFFF";
+                  const hex2 = currentColor.replace("#", "");
+                  const r2 = parseInt(hex2.substring(0, 2), 16);
+                  const g2 = parseInt(hex2.substring(2, 4), 16);
+                  const b2 = parseInt(hex2.substring(4, 6), 16);
+                  borderColor = `rgba(${r2}, ${g2}, ${b2}, 0.8)`;
+                  textColor = currentColor;
+                  break;
+              }
+
+              // Helper function to convert rgba to hex with opacity
+              const rgbaToHex = (rgba) => {
+                const parts = rgba.match(/[\d.]+/g);
+                if (parts) {
+                  const [r, g, b, a] = parts.map((x) => parseFloat(x));
+                  // For SVG, we'll use a slightly higher opacity to make the border more visible
+                  const opacity = Math.min(a * 1.25, 1); // Increase opacity by 25% but cap at 1
+                  return (
+                    `#${Math.round(r)
+                      .toString(16)
+                      .padStart(2, "0")}${Math.round(g)
+                      .toString(16)
+                      .padStart(2, "0")}${Math.round(b)
+                      .toString(16)
+                      .padStart(2, "0")}` + `;${opacity.toFixed(2)}`
+                  );
+                }
+                return "#FFFFFF;0.8"; // Default fallback
+              };
+
+              // Convert borderColor to SVG-compatible format
+              const [borderHex, borderOpacity] =
+                rgbaToHex(borderColor).split(";");
+
+              // Determine star and constellation colors based on map background
+              const mapBackgroundIsWhite = mapBackground === "#FFFFFF";
+              const starColor = mapBackgroundIsWhite ? "#000000" : "#FFFFFF";
+              const milkyWayColor = mapBackgroundIsWhite
+                ? "#000000"
+                : "#FFFFFF";
+              const constellationColor = mapBackgroundIsWhite
+                ? "#8e8e8e"
+                : "#cccccc";
+
+              // Update celestial display with correct colors
+              Celestial.display({
+                background: {
+                  fill: mapBackground,
+                  stroke: mapBackground,
+                  opacity: 1,
+                  width: 4,
+                },
+                stars: {
+                  show: true,
+                  limit: 6,
+                  colors: true,
+                  style: { fill: starColor, opacity: 1 },
+                  names: false,
+                  proper: false,
+                  desig: false,
+                  namelimit: 2.5,
+                  size: 4 * (scaleFactor * 0.8),
+                  data: "stars.6.json",
+                },
+                width: currentWidth * scaleFactor,
+                height: currentWidth * scaleFactor,
+                datapath: "../data/",
+                projection: "orthographic",
+                dsos: { show: false },
+                mw: { style: { fill: milkyWayColor, opacity: "0.05" } },
+                controls: false,
+                interactive: false,
+                constellations: {
+                  show: false,
+                  names: false,
+                  desig: false,
+                  lines: true,
+                  linestyle: {
+                    stroke: constellationColor,
+                    width: 1 * scaleFactor,
+                    opacity: 0.6,
+                  },
+                  bounds: false,
+                },
+                lines: {
+                  graticule: { show: false },
+                  equatorial: { show: false },
+                  ecliptic: { show: false },
+                  galactic: { show: false },
+                  supergalactic: { show: false },
+                },
+              });
+
+              // Get the high-res celestial SVG
+              const celestialSvg = await Celestial.exportSVG();
+
+              // Create new SVG document
+              const xmlns = "http://www.w3.org/2000/svg";
+              const svg = document.createElementNS(xmlns, "svg");
+              svg.setAttribute("xmlns", xmlns);
+              svg.setAttribute("viewBox", `0 0 ${A3_WIDTH} ${A3_HEIGHT}`);
+              svg.setAttribute("width", A3_WIDTH);
+              svg.setAttribute("height", A3_HEIGHT);
+
+              // Add the background rectangle with correct poster background
+              const background = document.createElementNS(xmlns, "rect");
+              background.setAttribute("width", "100%");
+              background.setAttribute("height", "100%");
+              background.setAttribute("fill", posterBackground);
+              svg.appendChild(background);
+
+              // Add the border with correct opacity
+              const border = document.createElementNS(xmlns, "rect");
+              const margin = A3_WIDTH * 0.05;
+              border.setAttribute("x", margin);
+              border.setAttribute("y", margin);
+              border.setAttribute("width", A3_WIDTH - margin * 2);
+              border.setAttribute("height", A3_HEIGHT - margin * 2);
+              border.setAttribute("fill", "none");
+              border.setAttribute("stroke", borderHex);
+              border.setAttribute("stroke-opacity", borderOpacity);
+              border.setAttribute("stroke-width", A3_WIDTH * 0.003);
+              svg.appendChild(border);
+
+              // Parse and add the celestial map SVG
+              const parser = new DOMParser();
+              const celestialDoc = parser.parseFromString(
+                celestialSvg,
+                "image/svg+xml"
+              );
+              const celestialElement = celestialDoc.documentElement;
+
+              // Calculate positioning for the celestial map
+              const mapWidth = A3_WIDTH * 0.8;
+              const mapHeight = mapWidth;
+              const scale =
+                mapWidth / parseFloat(celestialElement.getAttribute("width"));
+
+              // Create a group for the celestial map
+              const mapGroup = document.createElementNS(xmlns, "g");
+              mapGroup.setAttribute(
+                "transform",
+                `translate(${(A3_WIDTH - mapWidth) / 2} ${
+                  A3_HEIGHT * 0.09
+                }) scale(${scale})`
+              );
+
+              // Add a circle to frame the celestial map
+              const mapCircle = document.createElementNS(xmlns, "circle");
+              // Use the original celestial map dimensions for circle positioning
+              const originalWidth = parseFloat(
+                celestialElement.getAttribute("width")
+              );
+              mapCircle.setAttribute("cx", originalWidth / 2);
+              mapCircle.setAttribute("cy", originalWidth / 2);
+              mapCircle.setAttribute("r", (originalWidth / 2) * 0.94); // Slightly smaller than map width
+              mapCircle.setAttribute("fill", "none");
+              mapCircle.setAttribute("stroke", borderColor);
+              mapCircle.setAttribute(
+                "stroke-width",
+                (A3_WIDTH * 0.002) / scale
+              ); // Adjust stroke width for scaling
+
+              // Add both the map and the circle to the group
+              mapGroup.innerHTML = celestialElement.innerHTML;
+              mapGroup.appendChild(mapCircle);
+              svg.appendChild(mapGroup);
+
+              // Add text elements with correct text color
+              const textGroup = document.createElementNS(xmlns, "g");
+              textGroup.setAttribute(
+                "transform",
+                `translate(0 ${A3_HEIGHT * 0.75})`
+              );
+
+              // Helper function to create text elements
+              const createText = (content, y, style = {}) => {
+                const text = document.createElementNS(xmlns, "text");
+                text.textContent = content;
+                text.setAttribute("x", "50%");
+                text.setAttribute("y", y);
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("fill", textColor);
+                text.setAttribute(
+                  "font-family",
+                  "system-ui, -apple-system, sans-serif"
+                );
+                text.setAttribute("font-size", style.fontSize || "48");
+                if (style.fontWeight)
+                  text.setAttribute("font-weight", style.fontWeight);
+                if (style.fontStyle)
+                  text.setAttribute("font-style", style.fontStyle);
+                return text;
+              };
+
+              // Add text elements with correct colors
+              const title = createText("THE NIGHT SKY", 0, {
+                fontSize: A3_WIDTH * 0.04,
+                fontWeight: "bold",
+              });
+
+              const date = createText(
+                document.getElementById("mapDate").textContent,
+                A3_HEIGHT * 0.05,
+                { fontSize: A3_WIDTH * 0.025 }
+              );
+
+              const coords = createText(
+                document.getElementById("mapCoordinates").textContent,
+                A3_HEIGHT * 0.08,
+                { fontSize: A3_WIDTH * 0.025 }
+              );
+
+              const message = createText(
+                document.getElementById("mapMessage").textContent,
+                A3_HEIGHT * 0.12,
+                {
+                  fontSize: A3_WIDTH * 0.025,
+                  fontStyle: "italic",
+                }
+              );
+
+              [title, date, coords, message].forEach((el) =>
+                textGroup.appendChild(el)
+              );
+              svg.appendChild(textGroup);
+
+              // Create the download link
+              const svgString = new XMLSerializer().serializeToString(svg);
+              const blob = new Blob([svgString], { type: "image/svg+xml" });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "star-map-a3.svg";
+              link.click();
+
+              // Clean up
+              URL.revokeObjectURL(url);
+
+              // Restore original map configuration
+              initializeMap(currentColor, currentStyle, false);
+            } catch (error) {
+              console.error("Error generating SVG:", error);
+              alert("There was an error generating the SVG. Please try again.");
+            }
+          });
+      });
+    </script>
+  </body>
+</html>

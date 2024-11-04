@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.poster {
+    flex: 1;
+    margin-right: 20px;
+    background-color: midnightblue;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    width: 160px;
+    p {
+        color: white;
+    }
+}
+
+.map {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    /* width: 300px; */
+    height: 400px;
+}
+
+.details {
+    text-align: center;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.date, .coordinates {
+    font-size: 14px;
+}
+
+.personalise {
+    flex: 1;
+}
+
+.personalise h2 {
+    margin-top: 0;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+}
+
+#color, #map-style {
+    display: flex;
+    justify-content: space-between;
+}
+
+.color-button, .map-style-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
+
+.color-button.black {
+    background-color: black;
+}
+
+.color-button.midnight-blue {
+    background-color: midnightblue;
+}
+
+.color-button.green {
+    background-color: green;
+}
+
+.color-button.grey {
+    background-color: grey;
+}
+
+.map-style-button.style1 {
+    background-color: #222;
+}
+
+.map-style-button.style2 {
+    background-color: #444;
+}
+
+.map-style-button.style3 {
+    background-color: #666;
+}
+
+.map-style-button.style4 {
+    background-color: #888;
+}
+
+.blueButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
